@@ -49,10 +49,10 @@ async function runSeed() {
         console.log("Seeding courses...");
         for (const course of courses) {
             await client.query(
-                \`INSERT INTO courses (id, title, description, sort_order) 
+                `INSERT INTO courses (id, title, description, sort_order) 
                  VALUES ($1, $2, $3, $4)
                  ON CONFLICT (id) DO UPDATE 
-                 SET title = EXCLUDED.title, description = EXCLUDED.description, sort_order = EXCLUDED.sort_order\`,
+                 SET title = EXCLUDED.title, description = EXCLUDED.description, sort_order = EXCLUDED.sort_order`,
                 [course.id, course.title, course.description, course.id]
             );
         }
@@ -63,8 +63,8 @@ async function runSeed() {
             const res = await client.query('SELECT 1 FROM forum_topics WHERE title = $1', [topic.title]);
             if (res.rowCount === 0) {
                 await client.query(
-                    \`INSERT INTO forum_topics (author, title, content, reply_count, like_count, created_at)
-                     VALUES ($1, $2, $3, $4, $5, $6)\`,
+                    `INSERT INTO forum_topics (author, title, content, reply_count, like_count, created_at)
+                     VALUES ($1, $2, $3, $4, $5, $6)`,
                     [topic.author, topic.title, topic.content, topic.reply_count, topic.like_count, topic.created_at]
                 );
             }
