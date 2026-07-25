@@ -19,11 +19,11 @@ export async function saveSiteSettings(formData: FormData) {
     if (id) {
       await prisma.siteSettings.update({
         where: { id },
-        data: rawData as any
+        data: rawData as Record<string, string>
       });
     } else {
       await prisma.siteSettings.create({
-        data: rawData as any
+        data: rawData as Record<string, string>
       });
     }
     

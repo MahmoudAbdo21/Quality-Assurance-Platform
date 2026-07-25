@@ -35,22 +35,43 @@ export async function saveCertificate(formData: FormData) {
   }
 
   try {
-    if (validation.data.id) {
+    let certificateId = validation.data.id;
+    let actionType = 'CREATE_CERTIFICATE';
+
+    if (certificateId) {
+      actionType = 'UPDATE_CERTIFICATE';
       await prisma.certificate.update({
-        where: { id: validation.data.id },
+        where: { id: certificateId },
         data: validation.data,
       });
     } else {
-      await prisma.certificate.create({
+      const newCert = await prisma.certificate.create({
         data: validation.data,
       });
+      certificateId = newCert.id;
     }
     
-    revalidatePath('/admin/certificates');
+    // Audit Log
+    await prisma.auditLog.create({
+      data: {
+        adminUserId: auth.user!.id,
+        action: actionType,
+        entityType: 'CERTIFICATE',
+        entityId: certificateId,
+        summary: `Certificate Title: ${validation.data.title}`
+      }
+    });
+    
+    revalidatePath('/');
     revalidatePath('/certificates');
-    return { success: true };
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+    revalidatePath('/admin/certificates');
+    if (certificateId) {
+      revalidatePath(`/admin/certificates/${certificateId}/preview`);
+    }
+    
+    return { success: true, certificateId };
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && (error as { code: string }).code === 'P2002') {
       return { error: 'هذه الدورة التدريبية لها شهادة بالفعل' };
     }
     return { error: 'حدث خطأ أثناء حفظ الشهادة' };
@@ -62,9 +83,25 @@ export async function deleteCertificate(id: string) {
   if (auth.error) return { error: auth.error };
 
   try {
+    const cert = await prisma.certificate.findUnique({ where: { id } });
+    if (!cert) return { error: 'الشهادة غير موجودة' };
+
     await prisma.certificate.delete({ where: { id } });
-    revalidatePath('/admin/certificates');
+    
+    // Audit Log
+    await prisma.auditLog.create({
+      data: {
+        adminUserId: auth.user!.id,
+        action: 'DELETE_CERTIFICATE',
+        entityType: 'CERTIFICATE',
+        entityId: id,
+        summary: `Deleted Certificate Title: ${cert.title}`
+      }
+    });
+
+    revalidatePath('/');
     revalidatePath('/certificates');
+    revalidatePath('/admin/certificates');
     return { success: true };
   } catch (error) {
     return { error: 'حدث خطأ أثناء حذف الشهادة' };

@@ -98,9 +98,9 @@ export default async function AdminDashboardPage() {
           <h3 className="font-bold text-gray-800 mb-4 pb-2 border-b">أحدث التسجيلات</h3>
           {latestRegistrations.length === 0 ? <p className="text-sm text-gray-500">لا يوجد تسجيلات بعد</p> : (
             <ul className="space-y-3">
-              {latestRegistrations.map((reg: unknown) => (
+              {latestRegistrations.map((reg: any) => (
                 <li key={reg.id} className="text-sm">
-                  <span className="font-bold">{reg.fullName}</span> سجل في <span className="text-green-700">{reg.course.title}</span>
+                  <span className="font-bold">{reg.fullName}</span> سجل في <span className="text-gray-500">{reg.course.title}</span>
                 </li>
               ))}
             </ul>
@@ -111,7 +111,7 @@ export default async function AdminDashboardPage() {
           <h3 className="font-bold text-gray-800 mb-4 pb-2 border-b">أحدث الرسائل الواردة</h3>
           {latestMessages.length === 0 ? <p className="text-sm text-gray-500">لا يوجد رسائل جديدة</p> : (
             <ul className="space-y-3">
-              {latestMessages.map((msg: unknown) => (
+              {latestMessages.map((msg: any) => (
                 <li key={msg.id} className="text-sm">
                   <span className="font-bold">{msg.fullName}:</span> {msg.message.substring(0, 50)}...
                 </li>

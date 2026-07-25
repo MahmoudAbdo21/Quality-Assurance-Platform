@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { getVisitorId } from '@/lib/visitor';
+import PublicCertificateActions from '@/components/certificates/PublicCertificateActions';
 
 export default async function CertificatesPage() {
   const visitorId = await getVisitorId();
@@ -31,8 +32,8 @@ export default async function CertificatesPage() {
         {certificates.map(cert => {
           const isUnlocked = registeredCourseIds.has(cert.courseId);
           return (
-            <div key={cert.id} className={`bg-white rounded-xl shadow-md overflow-hidden interactive-card border-t-4 ${isUnlocked ? 'certificate-box unlocked' : 'border-t-gray-300'}`}>
-              <div className="p-6 relative">
+            <div key={cert.id} className={`bg-white rounded-xl shadow-md overflow-hidden interactive-card flex flex-col justify-between border-t-4 ${isUnlocked ? 'certificate-box unlocked' : 'border-t-gray-300'}`}>
+              <div className="p-6 relative flex-grow">
                 {isUnlocked && (
                   <div className="absolute top-4 left-4 badge-unlocked text-xs font-bold px-3 py-1 rounded-full flex items-center">
                     <span className="mr-1">✅</span> تم الحصول عليها
@@ -52,15 +53,13 @@ export default async function CertificatesPage() {
                   <span className="text-xs text-gray-500">مرتبطة بدورة:</span>
                   <p className="font-semibold text-sm text-[var(--secondary-green)]">{cert.course?.title}</p>
                 </div>
-                {isUnlocked ? (
-                  <button className="mt-4 w-full bg-[var(--primary-green)] text-white py-2 rounded-lg font-bold hover:bg-[var(--secondary-green)] transition">
-                    تحميل الشهادة
-                  </button>
-                ) : (
-                  <div className="mt-4 text-xs text-gray-400 flex items-center justify-center border border-gray-200 py-2 rounded-lg bg-gray-50">
-                    <span className="mr-2">🔒</span> مقفلة - تتطلب إتمام الدورة
-                  </div>
-                )}
+              </div>
+              <div className="p-6 pt-0">
+                <PublicCertificateActions 
+                  certificateId={cert.id}
+                  isLocked={!isUnlocked}
+                  isSuspended={cert.isSuspended}
+                />
               </div>
             </div>
           );

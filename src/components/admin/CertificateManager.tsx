@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { saveCertificate, deleteCertificate } from '@/actions/admin-certificates';
 import type { Certificate, Course } from '@prisma/client';
-import Link from 'next/link';
+import CertificatePreviewModal from '@/components/certificates/CertificatePreviewModal';
 
 type CertificateWithCourse = Certificate & { course: Course };
 
@@ -18,6 +18,7 @@ export default function CertificateManager({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [editingCert, setEditingCert] = useState<CertificateWithCourse | null>(null);
+  const [previewCert, setPreviewCert] = useState<CertificateWithCourse | null>(null);
 
   function openNew() {
     setEditingCert(null);
@@ -86,20 +87,24 @@ export default function CertificateManager({
                   <td className="p-4 text-gray-600">{cert.course.title}</td>
                   <td className="p-4">
                     {cert.isPublished ? (
-                      <span className="text-green-600 font-bold text-sm bg-green-50 px-3 py-1 rounded-full">جاهزة ✅</span>
+                      cert.isSuspended ? (
+                        <span className="text-red-600 font-bold text-sm bg-red-50 px-3 py-1 rounded-full">معلقة ⚠️</span>
+                      ) : (
+                        <span className="text-green-600 font-bold text-sm bg-green-50 px-3 py-1 rounded-full">جاهزة ✅</span>
+                      )
                     ) : (
                       <span className="text-gray-500 font-bold text-sm bg-gray-100 px-3 py-1 rounded-full">مسودة 📝</span>
                     )}
                   </td>
                   <td className="p-4">
                     <div className="flex gap-2">
-                      <Link 
-                        href={`/admin/certificates/${cert.id}/preview`} 
-                        className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-indigo-200"
+                      <button 
+                        onClick={() => setPreviewCert(cert)}
+                        className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-indigo-200 flex items-center gap-1"
                         title="معاينة"
                       >
-                        معاينة
-                      </Link>
+                        👁️ معاينة
+                      </button>
                       <button onClick={() => openEdit(cert)} className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-blue-200">تعديل</button>
                       <button onClick={() => handleDelete(cert.id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-red-200">حذف</button>
                     </div>
@@ -221,6 +226,22 @@ export default function CertificateManager({
             </form>
           </div>
         </div>
+      )}
+
+      {previewCert && (
+        <CertificatePreviewModal 
+          isOpen={!!previewCert}
+          onClose={() => setPreviewCert(null)}
+          data={{
+            certificateId: previewCert.id,
+            certificateTitle: previewCert.title,
+            certificateBody: previewCert.certificateBody,
+            courseTitle: previewCert.course?.title || 'دورة غير محددة',
+            participantName: 'اسم المتدرب للمعاينة',
+            issueDate: new Date().toLocaleDateString('ar-EG'),
+            isAdminPreview: true
+          }}
+        />
       )}
     </>
   );

@@ -1,8 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth-helpers';
+import CertificateDocument from '@/components/certificates/CertificateDocument';
+
+export const runtime = "nodejs";
 
 export default async function AdminCertificatePreviewPage({ params }: { params: { certificateId: string } }) {
+  await requireAdmin();
   const { certificateId } = await params;
   
   const certificate = await prisma.certificate.findUnique({
@@ -11,64 +16,41 @@ export default async function AdminCertificatePreviewPage({ params }: { params: 
   });
 
   if (!certificate) {
-    notFound();
+    return (
+      <div className="p-8 text-center" dir="rtl">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">الشهادة غير موجودة</h1>
+        <p className="text-gray-600 mb-6">عذراً، لم نتمكن من العثور على الشهادة المطلوبة.</p>
+        <Link href="/admin/certificates" className="text-green-600 hover:underline font-bold">
+          العودة لإدارة الشهادات
+        </Link>
+      </div>
+    );
   }
 
+  const documentData = {
+    certificateId: certificate.id,
+    certificateTitle: certificate.title,
+    certificateBody: certificate.certificateBody,
+    courseTitle: certificate.course?.title || 'دورة غير محددة',
+    participantName: 'اسم المتدرب للمعاينة',
+    issueDate: new Date().toLocaleDateString('ar-EG'),
+    isAdminPreview: true
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl fade-in" dir="rtl">
-      <div className="mb-6 flex justify-between items-center no-print">
-        <Link href="/admin/certificates" className="text-gray-500 hover:text-green-600 font-bold transition">
-          &rarr; العودة لإدارة الشهادات
+    <div className="container mx-auto px-4 py-8 max-w-6xl fade-in" dir="rtl">
+      <div className="mb-6 flex justify-between items-center no-print bg-white p-4 rounded-xl shadow-sm">
+        <Link href="/admin/certificates" className="text-gray-500 hover:text-green-600 font-bold transition flex items-center gap-2">
+          <span>&rarr;</span> العودة لإدارة الشهادات
         </Link>
-        <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-bold shadow-sm">
-          معاينة إدارية
+        <div className="bg-red-100 text-red-800 px-4 py-2 rounded-full font-bold shadow-sm border border-red-200">
+          معاينة إدارية للمسار البديل
         </div>
-        <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold shadow transition cursor-not-allowed opacity-50">
-          طباعة الشهادة (للمعاينات فقط)
-        </button>
       </div>
 
-      <div className="bg-white border-8 border-[var(--primary-green)] p-12 relative overflow-hidden shadow-2xl printable-certificate min-h-[600px] flex flex-col justify-center text-center">
-        {/* Certificate Decorative Elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-gold)] opacity-20 rounded-bl-full"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-[var(--accent-gold)] opacity-20 rounded-tr-full"></div>
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-4xl font-extrabold text-[var(--primary-green)] mb-2">{certificate.title}</h2>
-          <p className="text-xl font-bold text-[var(--accent-gold)]">{certificate.course.title}</p>
-        </div>
-
-        {/* Body */}
-        <div className="text-2xl text-gray-800 leading-loose mb-12 relative z-10 font-medium">
-          {certificate.certificateBody.split('\n').map((line, i) => (
-            <p key={i} className="mb-4">
-              {line
-                .replace('[اسم_المتدرب]', 'اسم المتدرب')
-                .replace('[تاريخ_الاصدار]', new Date().toLocaleDateString('ar-EG'))
-              }
-            </p>
-          ))}
-        </div>
-
-        {/* Footer Signatures */}
-        <div className="flex justify-between items-end mt-12 px-12 relative z-10">
-          <div className="text-center">
-            <div className="border-b-2 border-gray-400 w-48 mb-2"></div>
-            <p className="font-bold text-gray-700">مدير المركز التدريبي</p>
-          </div>
-          
-          <div className="text-center opacity-50">
-            <div className="w-24 h-24 border-4 border-gray-300 rounded-full flex items-center justify-center mx-auto mb-2 rotate-12">
-              <span className="font-bold text-gray-300 text-sm">ختم الاعتماد</span>
-            </div>
-            <p className="font-bold text-gray-700 text-sm">نسخة للمعاينة</p>
-          </div>
-
-          <div className="text-center">
-            <div className="border-b-2 border-gray-400 w-48 mb-2"></div>
-            <p className="font-bold text-gray-700">رئيس الهيئة</p>
-          </div>
+      <div className="flex justify-center overflow-x-auto p-4 bg-gray-100 rounded-xl print:bg-transparent print:p-0">
+        <div className="transform origin-top scale-[0.6] sm:scale-75 md:scale-90 lg:scale-100 print:scale-100 min-w-[1122px]">
+          <CertificateDocument data={documentData} />
         </div>
       </div>
     </div>

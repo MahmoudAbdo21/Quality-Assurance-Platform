@@ -26,7 +26,7 @@ export default async function AdminSecurityPage() {
   
   return (
     <div>
-      {/* @ts-expect-error */}
+      {/* @ts-expect-error - React 19 form actions don't fully support all Next.js typed bindings yet */}
       <SecurityManager users={users} currentUserId={currentUserId} />
     </div>
   )

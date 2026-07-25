@@ -85,25 +85,25 @@ export async function saveAdminUser(formData: FormData) {
     };
 
     if (validation.data.password) {
-      (dataToSave as any).passwordHash = await bcrypt.hash(validation.data.password, 10);
-      (dataToSave as any).sessionVersion = { increment: 1 };
+      (dataToSave as { passwordHash?: string; sessionVersion?: { increment: number } }).passwordHash = await bcrypt.hash(validation.data.password, 10);
+      (dataToSave as { passwordHash?: string; sessionVersion?: { increment: number } }).sessionVersion = { increment: 1 };
     }
 
     if (validation.data.id) {
       await prisma.adminUser.update({
         where: { id: validation.data.id },
-        data: dataToSave,
+        data: dataToSave as any,
       });
     } else {
       await prisma.adminUser.create({
-        data: dataToSave,
+        data: dataToSave as any,
       });
     }
     
     revalidatePath('/admin/security');
     return { success: true };
   } catch (error: unknown) {
-    if (error.code === 'P2002') {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code?: string}).code === 'P2002') {
       return { error: 'اسم المستخدم مسجل بالفعل' };
     }
     return { error: 'حدث خطأ أثناء الحفظ' };

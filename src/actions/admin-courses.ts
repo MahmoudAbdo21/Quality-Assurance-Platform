@@ -49,9 +49,9 @@ export async function saveCourse(formData: FormData) {
     revalidatePath('/admin/courses');
     revalidatePath('/courses');
     return { success: true };
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      return { error: 'رابط الدورة (slug) مستخدم بالفعل' };
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && (error as {code?: string}).code === 'P2002') {
+      return { error: 'هذه الدورة التدريبية مسجلة بالفعل' };
     }
     return { error: 'حدث خطأ أثناء حفظ الدورة' };
   }
