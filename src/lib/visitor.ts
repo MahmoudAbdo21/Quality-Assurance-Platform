@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function getVisitorId() {
   const cookieStore = await cookies();
-  let visitorId = cookieStore.get('visitor_id')?.value;
+  const visitorId = cookieStore.get('visitor_id')?.value;
 
   if (!visitorId) {
     // Fallback if middleware didn't set it (shouldn't happen on normal pages)

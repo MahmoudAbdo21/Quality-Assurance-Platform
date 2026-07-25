@@ -2,7 +2,6 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-import { z } from "zod"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -33,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isMatch) {
           // Increment failed attempts
           const newCount = user.failedLoginCount + 1;
-          const updateData: any = { failedLoginCount: newCount };
+          const updateData: { failedLoginCount: number; lockedUntil?: Date } = { failedLoginCount: newCount };
           
           if (newCount >= 5) {
             updateData.lockedUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
@@ -87,21 +86,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.username = (user as any).username;
-        token.role = (user as any).role;
-        token.sessionVersion = (user as any).sessionVersion;
+        token.username = (user as typeof user & { username: string }).username;
+        token.role = (user as typeof user & { role: string }).role;
+        token.sessionVersion = (user as typeof user & { sessionVersion: number }).sessionVersion;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).username = token.username as string;
-        (session.user as any).role = token.role as string;
-        (session.user as any).sessionVersion = token.sessionVersion as number;
+        (session.user as typeof session.user & { username: string }).username = token.username as string;
+        (session.user as typeof session.user & { role: string }).role = token.role as string;
+        (session.user as typeof session.user & { sessionVersion: number }).sessionVersion = token.sessionVersion as number;
       }
       return session;
     },

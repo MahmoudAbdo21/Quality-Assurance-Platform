@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { submitRegistration } from '@/actions/register';
 
-export default function CourseCard({ course }: { course: any }) {
+import type { Course } from '@prisma/client';
+
+export default function CourseCard({ course }: { course: Course }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);

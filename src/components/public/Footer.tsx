@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
-export function Footer({ settings }: { settings: any }) {
+import type { SiteSettings } from '@prisma/client';
+
+export function Footer({ settings }: { settings?: Partial<SiteSettings> | null }) {
   return (
     <footer className="bg-gray-800 text-white mt-16 pt-12 pb-6">
       <div className="container mx-auto px-4">

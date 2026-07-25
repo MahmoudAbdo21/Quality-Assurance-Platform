@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import KnowledgeSlider from '@/components/public/KnowledgeSlider';
 
 export default async function KnowMorePage() {
   const slides = await prisma.knowledgeSlide.findMany({
@@ -15,18 +16,8 @@ export default async function KnowMorePage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {slides.map((slide, index) => (
-          <div key={slide.id} className="modern-slide rounded-xl shadow-lg p-6 text-white border-b-4 border-[var(--accent-gold)] interactive-card hover:scale-105 transition-transform">
-            <div className="text-4xl mb-4 opacity-80">
-              {index % 4 === 0 ? '💡' : index % 4 === 1 ? '🎯' : index % 4 === 2 ? '🌟' : '📈'}
-            </div>
-            <h3 className="text-xl font-bold mb-3">{slide.title}</h3>
-            <p className="text-green-50 text-sm leading-relaxed">
-              {slide.content}
-            </p>
-          </div>
-        ))}
+      <div className="max-w-4xl mx-auto">
+        <KnowledgeSlider slides={slides} />
       </div>
     </div>
   );

@@ -23,42 +23,42 @@ model AdminUser {
 }
 
 model Course {
-  id               String               @id @default(cuid())
-  slug             String               @unique
+  id               String   @id @default(cuid())
+  slug             String   @unique
   title            String
   summary          String
   description      String
-  displayOrder     Int                  @default(0)
-  isPublished      Boolean              @default(true)
-  isSuspended      Boolean              @default(false)
+  displayOrder     Int      @default(0)
+  isPublished      Boolean  @default(true)
+  isSuspended      Boolean  @default(false)
   suspensionReason String?
   imageAssetId     String?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  certificate      Certificate?
-  registrations    CourseRegistration[]
-  imageAsset       MediaAsset?          @relation("CourseImage", fields: [imageAssetId], references: [id])
+  certificate   Certificate?
+  registrations CourseRegistration[]
+  imageAsset    MediaAsset?          @relation("CourseImage", fields: [imageAssetId], references: [id])
 }
 
 model Certificate {
-  id               String      @id @default(cuid())
-  courseId         String      @unique
+  id               String   @id @default(cuid())
+  courseId         String   @unique
   title            String
   description      String
   certificateBody  String
-  displayOrder     Int         @default(0)
-  isPublished      Boolean     @default(true)
-  isSuspended      Boolean     @default(false)
+  displayOrder     Int      @default(0)
+  isPublished      Boolean  @default(true)
+  isSuspended      Boolean  @default(false)
   suspensionReason String?
   imageAssetId     String?
   fileAssetId      String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  course           Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  imageAsset       MediaAsset? @relation("CertificateImage", fields: [imageAssetId], references: [id])
-  fileAsset        MediaAsset? @relation("CertificateFile", fields: [fileAssetId], references: [id])
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  imageAsset MediaAsset? @relation("CertificateImage", fields: [imageAssetId], references: [id])
+  fileAsset  MediaAsset? @relation("CertificateFile", fields: [fileAssetId], references: [id])
 }
 
 model Visitor {
@@ -102,13 +102,13 @@ model ForumTopic {
 }
 
 model ForumComment {
-  id         String     @id @default(cuid())
+  id         String   @id @default(cuid())
   topicId    String
   authorName String
   content    String
-  isVisible  Boolean    @default(true)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   topic ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }

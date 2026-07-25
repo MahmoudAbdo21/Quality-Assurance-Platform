@@ -11,24 +11,20 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
       <aside className="w-full md:w-64 bg-gray-800 text-white min-h-screen flex-shrink-0 shadow-xl">
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-bold text-white mb-1">لوحة الإدارة</h2>
-          <p className="text-gray-400 text-sm">مرحباً، {user.name}</p>
+          <p className="text-gray-400 text-sm">مرحباً، {user.displayName}</p>
         </div>
         <nav className="p-4 space-y-2">
-          <Link href="/admin/courses" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">
-            الدورات التدريبية
-          </Link>
-          <Link href="/admin/certificates" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">
-            الشهادات
-          </Link>
-          <Link href="/admin/registrations" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">
-            المسجلين
-          </Link>
-          <Link href="/admin/messages" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">
-            رسائل التواصل
-          </Link>
-          <Link href="/admin/settings" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">
-            الإعدادات العامة
-          </Link>
+          <Link href="/admin/dashboard" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">لوحة التحكم</Link>
+          <Link href="/admin/courses" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الدورات التدريبية</Link>
+          <Link href="/admin/certificates" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الشهادات</Link>
+          <Link href="/admin/registrations" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المسجلين</Link>
+          <Link href="/admin/discussions" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المنتدى والنقاشات</Link>
+          <Link href="/admin/messages" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">رسائل التواصل</Link>
+          <Link href="/admin/subscribers" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المشتركين</Link>
+          <Link href="/admin/content" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المحتوى</Link>
+          <Link href="/admin/settings" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الإعدادات العامة</Link>
+          <Link href="/admin/security" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الأمان وحسابي</Link>
+          <Link href="/admin/audit" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">سجل النظام (Audit)</Link>
         </nav>
         <div className="p-4 border-t border-gray-700 absolute bottom-0 w-full md:w-64">
           <SignOutButton />

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import CreateTopicDialog from '@/components/public/forum/CreateTopicDialog';
 
 export default async function ForumPage() {
   const topics = await prisma.forumTopic.findMany({
@@ -13,15 +14,13 @@ export default async function ForumPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12 fade-in">
-      <div className="flex justify-between items-center mb-8 border-b-2 border-[var(--accent-gold)] pb-4">
+    <div className="container mx-auto px-4 py-12 fade-in max-w-6xl">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b-2 border-[var(--accent-gold)] pb-4 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-[var(--primary-green)] mb-2">منتدى النقاش والتطوير</h2>
           <p className="text-gray-600">مساحة تفاعلية لتبادل الرؤى والخبرات حول قضايا الجودة والاعتماد.</p>
         </div>
-        <button className="add-topic-btn text-white px-6 py-3 rounded-lg font-bold transition">
-          + موضوع جديد
-        </button>
+        <CreateTopicDialog />
       </div>
 
       <div className="space-y-6">
