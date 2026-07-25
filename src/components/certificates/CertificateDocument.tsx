@@ -10,6 +10,11 @@ export type CertificateDocumentData = {
   participantDegree?: string | null;
   issueDate: string;
   verificationCode?: string | null;
+  serialNumber?: string | null;
+  status?: string | null;
+  trainingHours?: number | null;
+  grade?: string | null;
+  completionDate?: string | null;
   isAdminPreview: boolean;
 };
 
@@ -55,6 +60,12 @@ export default function CertificateDocument({ data, id = 'certificate-node' }: {
         <p className="text-[#15803D] font-bold text-lg leading-tight">منصة ضمان الجودة والاعتماد الأكاديمي</p>
       </div>
 
+      {data.status === 'REVOKED' && (
+        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <span className="text-8xl font-black text-red-600 border-8 border-red-600 rounded-2xl p-6 rotate-[-20deg] opacity-60">شهادة ملغاة</span>
+        </div>
+      )}
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center flex-grow justify-center mt-4">
         <h1 className="text-5xl font-extrabold text-[#15803D] mb-8 pb-4 border-b-2 border-[#FBBF24] inline-block px-12">
@@ -63,7 +74,7 @@ export default function CertificateDocument({ data, id = 'certificate-node' }: {
         
         <p className="text-2xl text-gray-700 mb-4 font-medium">تشهد الهيئة بأن المتدرب</p>
         
-        <h2 className="text-4xl font-bold text-gray-900 mb-6">
+        <h2 className="text-4xl font-bold text-gray-900 mb-6" style={{ overflowWrap: 'anywhere', wordBreak: 'normal', unicodeBidi: 'plaintext' }}>
           {data.participantDegree ? `${data.participantDegree}/ ` : ''}{data.participantName}
         </h2>
         
@@ -77,6 +88,14 @@ export default function CertificateDocument({ data, id = 'certificate-node' }: {
         <p className="text-3xl font-bold text-[#FBBF24] mt-8 mb-4">
           {data.courseTitle}
         </p>
+
+        {(data.trainingHours || data.grade || data.completionDate) && (
+          <div className="flex gap-6 mt-4 text-gray-700 font-bold bg-white/50 px-6 py-2 rounded-lg border border-[#FBBF24]">
+            {data.trainingHours && <span>ساعات التدريب: {data.trainingHours}</span>}
+            {data.completionDate && <span>تاريخ الإتمام: {data.completionDate}</span>}
+            {data.grade && <span>التقدير: {data.grade}</span>}
+          </div>
+        )}
       </div>
 
       {/* Footer / Signatures */}
@@ -91,10 +110,13 @@ export default function CertificateDocument({ data, id = 'certificate-node' }: {
             <span className="font-bold text-[#FBBF24] text-lg text-center leading-tight">ختم<br/>الاعتماد</span>
           </div>
           <p className="text-sm text-gray-500 font-bold">تاريخ الإصدار: {data.issueDate}</p>
+          {data.serialNumber && (
+            <p className="text-xs text-gray-600 font-bold mt-1">الرقم التسلسلي: {data.serialNumber}</p>
+          )}
           {data.verificationCode && (
             <p className="text-xs text-gray-400 mt-1">كود التحقق: {data.verificationCode}</p>
           )}
-          {data.isAdminPreview && (
+          {data.isAdminPreview && !data.serialNumber && (
             <p className="text-red-500 font-bold text-sm mt-2">معاينة إدارية — غير صالحة للاستخدام</p>
           )}
         </div>

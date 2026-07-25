@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from '@/lib/prisma';
-import { getVisitorId } from '@/lib/visitor';
 import { z } from 'zod';
 import type { CertificateDocumentData } from '@/components/certificates/CertificateDocument';
 
@@ -16,28 +15,14 @@ export async function getPublicCertificatePreview(certificateId: string): Promis
       return { error: 'معرف الشهادة غير صالح' };
     }
 
-    const visitorId = await getVisitorId();
-
     const cert = await prisma.certificate.findUnique({
       where: { id: certificateId },
       include: { course: true }
     });
 
-    if (!cert) return { error: 'الشهادة غير موجودة' };
-    if (!cert.isPublished) return { error: 'هذه الشهادة غير متاحة حالياً' };
-    if (cert.isSuspended) return { error: 'تم إيقاف هذه الشهادة مؤقتاً' };
-
-    // Find registration for this visitor and course
-    const registration = await prisma.courseRegistration.findFirst({
-      where: {
-        visitorId,
-        courseId: cert.courseId
-      }
-    });
-
-    if (!registration) {
-      return { error: 'غير مصرح لك بمعاينة هذه الشهادة (لم تقم باجتياز الدورة)' };
-    }
+    if (!cert) return { error: 'القالب غير موجود' };
+    if (!cert.isPublished) return { error: 'هذا القالب غير متاح حالياً' };
+    if (cert.isSuspended) return { error: 'تم إيقاف هذا القالب مؤقتاً' };
 
     return {
       data: {
@@ -45,15 +30,14 @@ export async function getPublicCertificatePreview(certificateId: string): Promis
         certificateTitle: cert.title,
         certificateBody: cert.certificateBody,
         courseTitle: cert.course.title,
-        participantName: registration.fullName,
-        participantDegree: registration.promotionDegree,
-        issueDate: registration.createdAt.toLocaleDateString('ar-EG'),
-        verificationCode: registration.publicToken,
-        isAdminPreview: false
+        participantName: 'اسم المستفيد',
+        participantDegree: null,
+        issueDate: new Date().toLocaleDateString('ar-EG'),
+        isAdminPreview: true, // Mark it true so it shows the watermark "غير صالح للاستخدام"
+        status: 'TEMPLATE' // not revoked, no serial number
       }
     };
   } catch (error) {
-    console.error('getPublicCertificatePreview error:', error);
-    return { error: 'حدث خطأ غير متوقع أثناء تحميل بيانات الشهادة' };
+    return { error: 'حدث خطأ غير متوقع أثناء تحميل بيانات القالب' };
   }
 }

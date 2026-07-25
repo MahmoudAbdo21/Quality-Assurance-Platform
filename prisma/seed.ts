@@ -58,17 +58,31 @@ async function main() {
       }
     });
 
-    await prisma.certificate.upsert({
-      where: { courseId: course.id },
-      update: {},
-      create: {
-        courseId: course.id,
-        title: certTitlesList[i],
-        description: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-        certificateBody: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-        displayOrder: i + 1,
-      }
+    const existingCert = await prisma.certificate.findFirst({
+      where: { courseId: course.id }
     });
+
+    if (existingCert) {
+      await prisma.certificate.update({
+        where: { id: existingCert.id },
+        data: {
+          title: certTitlesList[i],
+          description: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
+          certificateBody: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
+          displayOrder: i + 1,
+        }
+      });
+    } else {
+      await prisma.certificate.create({
+        data: {
+          courseId: course.id,
+          title: certTitlesList[i],
+          description: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
+          certificateBody: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
+          displayOrder: i + 1,
+        }
+      });
+    }
   }
   console.log(`10 courses and certificates seeded.`)
 
