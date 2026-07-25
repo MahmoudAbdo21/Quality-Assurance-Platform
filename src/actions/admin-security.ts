@@ -85,8 +85,8 @@ export async function saveAdminUser(formData: FormData) {
     };
 
     if (validation.data.password) {
-      dataToSave.passwordHash = await bcrypt.hash(validation.data.password, 10);
-      dataToSave.sessionVersion = { increment: 1 };
+      (dataToSave as any).passwordHash = await bcrypt.hash(validation.data.password, 10);
+      (dataToSave as any).sessionVersion = { increment: 1 };
     }
 
     if (validation.data.id) {

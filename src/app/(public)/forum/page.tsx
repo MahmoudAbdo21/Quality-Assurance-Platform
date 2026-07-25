@@ -1,14 +1,21 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import CreateTopicDialog from '@/components/public/forum/CreateTopicDialog';
+import LikeButton from '@/components/public/forum/LikeButton';
+import { getVisitorId } from '@/lib/visitor';
 
 export default async function ForumPage() {
+  const visitorId = await getVisitorId();
+  
   const topics = await prisma.forumTopic.findMany({
     where: { isVisible: true },
     orderBy: { createdAt: 'desc' },
     include: {
       _count: {
         select: { comments: true, likes: true }
+      },
+      likes: {
+        where: { visitorId }
       }
     }
   });
@@ -44,12 +51,10 @@ export default async function ForumPage() {
                   {topic.content}
                 </p>
                 <div className="mt-4 flex space-x-4 space-x-reverse border-t border-gray-50 pt-3">
-                  <button className="text-sm text-gray-500 hover:text-[var(--primary-green)] transition flex items-center">
-                    <span className="mr-1">💬</span> {topic._count.comments} تعليقات
-                  </button>
-                  <button className="text-sm text-gray-500 hover:text-red-500 transition flex items-center">
-                    <span className="mr-1">❤️</span> {topic._count.likes} إعجاب
-                  </button>
+                  <Link href={`/forum/${topic.id}#comments`} className="text-sm text-gray-500 hover:text-[var(--primary-green)] transition flex items-center">
+                    <span className="mr-1">💬</span> <span className="mr-1" dir="ltr">{topic._count.comments}</span> تعليقات
+                  </Link>
+                  <LikeButton topicId={topic.id} initialCount={topic._count.likes} initialLiked={topic.likes.length > 0} />
                 </div>
               </div>
             </div>

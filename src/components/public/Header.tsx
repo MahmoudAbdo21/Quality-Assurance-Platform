@@ -24,7 +24,7 @@ export function Header() {
         <div className="container mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center md:items-start justify-center gap-3">
           <div className="flex-shrink-0 bg-white p-1 rounded-lg shadow-sm">
             <Image 
-              src="/brand/quality-accreditation-logo.png" 
+              src="/brand/quality-accreditation-logo.svg" 
               alt="شعار منصة ضمان الجودة والاعتماد الأكاديمي"
               width={68}
               height={68}
