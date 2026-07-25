@@ -8,19 +8,27 @@ export default function CreateTopicDialog() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    const formData = new FormData(e.currentTarget);
-    const result = await createTopic(formData);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     
-    if (result.error) {
-      setError(result.error);
-      setIsSubmitting(false);
-    } else {
-      setIsOpen(false);
+    try {
+      const result = await createTopic(formData);
+      
+      if (!result.success) {
+        setError(result.error ?? "تعذر إضافة الموضوع.");
+      } else {
+        form.reset();
+        setIsOpen(false);
+      }
+    } catch (err) {
+      console.error("Topic submission failed:", err);
+      setError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
+    } finally {
       setIsSubmitting(false);
     }
   }

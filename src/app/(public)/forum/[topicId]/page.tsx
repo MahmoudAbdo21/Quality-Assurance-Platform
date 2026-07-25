@@ -16,7 +16,12 @@ export default async function TopicPage({ params }: { params: { topicId: string 
         orderBy: { createdAt: 'asc' }
       },
       _count: {
-        select: { likes: true, comments: true }
+        select: { 
+          likes: true, 
+          comments: {
+            where: { isVisible: true }
+          } 
+        }
       },
       likes: {
         where: { visitorId }
@@ -29,6 +34,7 @@ export default async function TopicPage({ params }: { params: { topicId: string 
   }
 
   const hasLiked = topic.likes.length > 0;
+  const displayedLikesCount = topic._count.likes + topic.manualLikeCount;
 
   return (
     <div className="container mx-auto px-4 py-12 fade-in max-w-4xl">
@@ -44,7 +50,7 @@ export default async function TopicPage({ params }: { params: { topicId: string 
         </div>
 
         <div className="flex items-center justify-between border-t pt-4">
-          <LikeButton topicId={topic.id} initialCount={topic._count.likes} initialLiked={hasLiked} />
+          <LikeButton topicId={topic.id} initialCount={displayedLikesCount} initialLiked={hasLiked} />
           
           <div className="text-gray-500">
             {topic.isLocked && <span className="text-red-500 font-bold ml-4">🔒 الموضوع مغلق</span>}

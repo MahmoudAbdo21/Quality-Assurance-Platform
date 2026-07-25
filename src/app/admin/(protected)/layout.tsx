@@ -20,7 +20,6 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
           <Link href="/admin/registrations" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المسجلين</Link>
           <Link href="/admin/discussions" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المنتدى والنقاشات</Link>
           <Link href="/admin/messages" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">رسائل التواصل</Link>
-          <Link href="/admin/subscribers" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المشتركين</Link>
           <Link href="/admin/content" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">المحتوى</Link>
           <Link href="/admin/settings" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الإعدادات العامة</Link>
           <Link href="/admin/security" className="block px-4 py-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white transition">الأمان وحسابي</Link>

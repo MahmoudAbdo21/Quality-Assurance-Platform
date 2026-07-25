@@ -87,16 +87,17 @@ model CourseRegistration {
 }
 
 model ForumTopic {
-  id         String         @id @default(cuid())
-  authorName String
-  title      String
-  content    String
-  isVisible  Boolean        @default(true)
-  isLocked   Boolean        @default(false)
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  comments   ForumComment[]
-  likes      ForumLike[]
+  id              String         @id @default(cuid())
+  authorName      String
+  title           String
+  content         String
+  isVisible       Boolean        @default(true)
+  isLocked        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  comments        ForumComment[]
+  likes           ForumLike[]
+  manualLikeCount Int            @default(0)
 }
 
 model ForumComment {

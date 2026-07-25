@@ -12,7 +12,6 @@ export default async function AdminDashboardPage() {
     topicsCount,
     commentsCount,
     likesCount,
-    subscribersCount,
     latestRegistrations,
     latestMessages
   ] = await Promise.all([
@@ -26,7 +25,6 @@ export default async function AdminDashboardPage() {
     prisma.forumTopic.count(),
     prisma.forumComment.count(),
     prisma.forumLike.count(),
-    prisma.newsletterSubscriber.count({ where: { isActive: true } }),
     prisma.courseRegistration.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
@@ -74,10 +72,7 @@ export default async function AdminDashboardPage() {
           <p className="text-pink-600 text-sm font-bold mb-1">رسائل جديدة</p>
           <p className="text-3xl font-black text-pink-900">{messagesCount}</p>
         </div>
-        <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 shadow-sm">
-          <p className="text-indigo-600 text-sm font-bold mb-1">المشتركين (النشرة)</p>
-          <p className="text-3xl font-black text-indigo-900">{subscribersCount}</p>
-        </div>
+
         
         <div className="bg-teal-50 p-4 rounded-xl border border-teal-100 shadow-sm">
           <p className="text-teal-600 text-sm font-bold mb-1">النقاشات</p>

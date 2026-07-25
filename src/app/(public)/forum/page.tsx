@@ -12,7 +12,12 @@ export default async function ForumPage() {
     orderBy: { createdAt: 'desc' },
     include: {
       _count: {
-        select: { comments: true, likes: true }
+        select: { 
+          comments: {
+            where: { isVisible: true }
+          }, 
+          likes: true 
+        }
       },
       likes: {
         where: { visitorId }
@@ -31,7 +36,11 @@ export default async function ForumPage() {
       </div>
 
       <div className="space-y-6">
-        {topics.map(topic => (
+        {topics.length === 0 ? (
+          <div className="text-center p-12 bg-white rounded-xl shadow-sm border border-gray-100">
+            <p className="text-gray-500">لا توجد نقاشات مضافة حتى الآن.</p>
+          </div>
+        ) : topics.map(topic => (
           <div key={topic.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 forum-thread-modern border-r-4 transition hover:shadow-md">
             <div className="flex items-start">
               <div className="hidden md:flex thread-avatar w-12 h-12 rounded-full text-white items-center justify-center font-bold text-xl ml-4 shrink-0 shadow-inner">
@@ -54,7 +63,11 @@ export default async function ForumPage() {
                   <Link href={`/forum/${topic.id}#comments`} className="text-sm text-gray-500 hover:text-[var(--primary-green)] transition flex items-center">
                     <span className="mr-1">💬</span> <span className="mr-1" dir="ltr">{topic._count.comments}</span> تعليقات
                   </Link>
-                  <LikeButton topicId={topic.id} initialCount={topic._count.likes} initialLiked={topic.likes.length > 0} />
+                  <LikeButton 
+                    topicId={topic.id} 
+                    initialCount={topic._count.likes + topic.manualLikeCount} 
+                    initialLiked={topic.likes.length > 0} 
+                  />
                 </div>
               </div>
             </div>
