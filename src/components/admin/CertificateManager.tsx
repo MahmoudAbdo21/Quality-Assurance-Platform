@@ -94,7 +94,7 @@ export default function CertificateManager({
                   <td className="p-4">
                     <div className="flex gap-2">
                       <Link 
-                        href={`/certificates/verify?token=SAMPLE`} 
+                        href={`/admin/certificates/${cert.id}/preview`} 
                         className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-indigo-200"
                         title="معاينة"
                       >
