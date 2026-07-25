@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import PublicCertificateActions from '@/components/certificates/PublicCertificateActions';
-import Link from 'next/link';
 
 export default async function CertificatesPage() {
   const certificates = await prisma.certificate.findMany({
@@ -16,23 +15,6 @@ export default async function CertificatesPage() {
         <p className="text-gray-600 max-w-2xl mx-auto mb-8">
           شهادات موثقة ومعتمدة من الهيئة القومية لضمان جودة التعليم، تمنح للمتدربين الذين أتموا الدورات التدريبية بنجاح.
         </p>
-
-        <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-indigo-50 max-w-xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">التحقق من شهادة</h3>
-          <p className="text-gray-600 text-sm mb-6">أدخل كود التحقق أو الرقم التسلسلي الموجود على الشهادة</p>
-          <form action="/certificates/verify" method="GET" className="flex flex-col sm:flex-row gap-3 relative z-20">
-            <input 
-              type="text" 
-              name="token" 
-              placeholder="كود التحقق أو الرقم التسلسلي..." 
-              required
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-            <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-lg shadow transition whitespace-nowrap z-20 relative cursor-pointer">
-              تحقق من الشهادة
-            </button>
-          </form>
-        </div>
       </div>
 
       <h3 className="text-2xl font-bold text-gray-800 mb-6 border-r-4 border-[var(--primary-green)] pr-3">قوالب الشهادات المتاحة</h3>
