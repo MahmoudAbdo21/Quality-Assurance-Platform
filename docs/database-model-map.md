@@ -1,0 +1,35 @@
+# Database Model Map
+
+## Core Schema
+- **`AdminUser`**
+  - Managed by `/admin/security`
+  - Columns: id, username, passwordHash, displayName, isActive, role, failedLoginAttempts, lockedUntil, sessionVersion, createdAt, updatedAt
+- **`SiteSettings`**
+  - Managed by `/admin/settings`
+  - Fields map directly to site configurations like contact info, copyright, privacy/terms text, hero texts, etc.
+- **`KnowledgeSlide`**
+  - Managed by `/admin/content`
+  - Defines content for the "تعرف أكثر" carousel section.
+- **`Course`**
+  - Managed by `/admin/courses`
+  - Publicly visible based on `isPublished` and `isSuspended`
+- **`CourseRegistration`**
+  - Managed by `/admin/registrations`
+  - Publicly created via Course Cards form. Unique compound index on visitor and course.
+- **`Certificate`**
+  - Managed by `/admin/certificates`
+  - Link to `Course`. Renders customized layout based on registration info.
+- **`Visitor`**
+  - Opaque identity assigned via cookie to track user sessions for tracking Forum actions & Registrations without login.
+- **`ForumTopic`**
+  - Public topics. Handled in `/forum`.
+- **`ForumComment`**
+  - Responses linked to `ForumTopic`.
+- **`ForumLike`**
+  - Unique relation between `Visitor` and `ForumTopic`.
+- **`ContactMessage`**
+  - Received messages from `/contact`. Managed by `/admin/messages`.
+- **`NewsletterSubscriber`**
+  - Subscriptions from the footer. Unique normalized emails. Managed by `/admin/subscribers`.
+- **`AuditLog`**
+  - System logs tracking every administrative action. Managed by `/admin/audit`.

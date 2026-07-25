@@ -29,7 +29,7 @@ export async function toggleUserActive(id: string, isActive: boolean) {
   const auth = await requireAdminApi();
   if (auth.error) return { error: auth.error };
 
-  if (auth.user.id === id) {
+  if (auth?.user?.id === id) {
     return { error: 'لا يمكنك تعطيل حسابك الحالي' };
   }
 
@@ -78,7 +78,7 @@ export async function saveAdminUser(formData: FormData) {
   }
 
   try {
-    const dataToSave: any = {
+    const dataToSave: unknown = {
       username: validation.data.username,
       displayName: validation.data.displayName,
       role: validation.data.role,
@@ -102,7 +102,7 @@ export async function saveAdminUser(formData: FormData) {
     
     revalidatePath('/admin/security');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.code === 'P2002') {
       return { error: 'اسم المستخدم مسجل بالفعل' };
     }

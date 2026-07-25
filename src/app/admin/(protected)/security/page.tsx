@@ -26,7 +26,7 @@ export default async function AdminSecurityPage() {
   
   return (
     <div>
-      {/* @ts-ignore */}
+      {/* @ts-expect-error */}
       <SecurityManager users={users} currentUserId={currentUserId} />
     </div>
   )

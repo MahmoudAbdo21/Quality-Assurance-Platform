@@ -49,7 +49,7 @@ export default function ContentManager({ slides }: { slides: KnowledgeSlide[] })
   return (
     <>
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">إدارة محتوى "تعرف أكثر"</h2>
+        <h2 className="text-2xl font-bold text-gray-800">إدارة محتوى &quot;تعرف أكثر&quot;</h2>
         <button onClick={openNew} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow font-bold transition">
           + إضافة معلومة جديدة
         </button>
