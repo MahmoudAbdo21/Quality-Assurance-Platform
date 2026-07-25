@@ -6,6 +6,10 @@ export default async function AdminCertificatesRoute() {
     orderBy: { displayOrder: 'asc' },
     include: { 
       course: true,
+      logoAsset: true,
+      sealAsset: true,
+      firstSignatureAsset: true,
+      secondSignatureAsset: true,
       _count: { select: { issues: true } }
     }
   })

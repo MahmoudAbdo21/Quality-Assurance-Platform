@@ -69,9 +69,16 @@ export default async function VerifyCertificatePage({
     certificateId: issue.certificateId,
     certificateTitle: issue.certificateTitleSnapshot,
     certificateBody: issue.certificateBodySnapshot,
+    certificateOpeningText: issue.certificateOpeningTextSnapshot,
+    certificateClosingText: issue.certificateClosingTextSnapshot,
     courseTitle: issue.courseTitleSnapshot,
+    
     participantName: issue.recipientFullName,
     participantDegree: issue.recipientTitle,
+    participantFaculty: issue.recipientFaculty,
+    participantDepartment: issue.recipientDepartment,
+    participantOrganization: issue.recipientOrganization,
+    
     issueDate: new Date(issue.issueDate).toLocaleDateString('ar-EG'),
     trainingHours: issue.trainingHours,
     grade: issue.grade,
@@ -79,6 +86,24 @@ export default async function VerifyCertificatePage({
     serialNumber: issue.serialNumber,
     verificationCode: issue.verificationToken,
     status: issue.status,
+    
+    issuerName: issue.issuerNameSnapshot,
+    universityName: issue.universityNameSnapshot,
+    platformName: issue.platformNameSnapshot,
+    
+    logoUrl: issue.logoAssetIdSnapshot, // Ideally relations would be populated, but assuming IDs or paths for now. For public verify we might need the actual relativePath. Wait. I'll need to fetch the assets in verify page.
+    sealUrl: issue.sealAssetIdSnapshot,
+    firstSignatureUrl: issue.firstSignatureAssetIdSnapshot,
+    secondSignatureUrl: issue.secondSignatureAssetIdSnapshot,
+    
+    firstSignerName: issue.firstSignerNameSnapshot,
+    firstSignerTitle: issue.firstSignerTitleSnapshot,
+    secondSignerName: issue.secondSignerNameSnapshot,
+    secondSignerTitle: issue.secondSignerTitleSnapshot,
+    
+    primaryColor: issue.primaryColorSnapshot,
+    secondaryColor: issue.secondaryColorSnapshot,
+    
     isAdminPreview: false
   };
 

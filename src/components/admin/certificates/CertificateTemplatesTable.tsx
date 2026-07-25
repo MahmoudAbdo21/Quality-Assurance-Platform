@@ -133,7 +133,7 @@ export default function CertificateTemplatesTable({
               {editingCert ? 'تعديل قالب الشهادة' : 'إضافة قالب جديد'}
             </h3>
             
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
               {editingCert && <input type="hidden" name="id" value={editingCert.id} />}
               {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg text-sm font-bold">{error}</div>}
               
@@ -186,7 +186,156 @@ export default function CertificateTemplatesTable({
                 <p className="text-xs text-gray-500 mt-1">المتغيرات المدعومة: [اسم_المتدرب]، [تاريخ_الاصدار]</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1">الهوية البصرية</h4>
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">النص الافتتاحي</label>
+                  <input 
+                    name="certificateOpeningText" 
+                    type="text" 
+                    defaultValue={editingCert?.certificateOpeningText || 'تشهد منصة ضمان الجودة والاعتماد الأكاديمي بأن'}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">النص الختامي</label>
+                  <input 
+                    name="certificateClosingText" 
+                    type="text" 
+                    defaultValue={editingCert?.certificateClosingText || 'قد أتم/اجتاز بنجاح الدورة التدريبية'}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">اللون الأساسي</label>
+                  <input 
+                    name="primaryColor" 
+                    type="color" 
+                    defaultValue={editingCert?.primaryColor || '#15803D'}
+                    className="w-full h-10 border rounded-lg cursor-pointer" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">اللون الثانوي</label>
+                  <input 
+                    name="secondaryColor" 
+                    type="color" 
+                    defaultValue={editingCert?.secondaryColor || '#FBBF24'}
+                    className="w-full h-10 border rounded-lg cursor-pointer" 
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">الشعارات والأختام</h4>
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">شعار الجهة (Logo)</label>
+                  <input 
+                    name="logoFile" 
+                    type="file" accept="image/*"
+                    className="w-full px-4 py-2 border rounded-lg outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">ختم الشهادة (Seal)</label>
+                  <input 
+                    name="sealFile" 
+                    type="file" accept="image/*"
+                    className="w-full px-4 py-2 border rounded-lg outline-none" 
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">التوقيع الأول</h4>
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">اسم صاحب التوقيع</label>
+                  <input 
+                    name="firstSignerName" 
+                    type="text" 
+                    defaultValue={editingCert?.firstSignerName || ''}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">المسمى الوظيفي</label>
+                  <input 
+                    name="firstSignerTitle" 
+                    type="text" 
+                    defaultValue={editingCert?.firstSignerTitle || ''}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">صورة التوقيع الأول</label>
+                  <input 
+                    name="firstSignatureFile" 
+                    type="file" accept="image/*"
+                    className="w-full px-4 py-2 border rounded-lg outline-none" 
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">التوقيع الثاني</h4>
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">اسم صاحب التوقيع</label>
+                  <input 
+                    name="secondSignerName" 
+                    type="text" 
+                    defaultValue={editingCert?.secondSignerName || ''}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">المسمى الوظيفي</label>
+                  <input 
+                    name="secondSignerTitle" 
+                    type="text" 
+                    defaultValue={editingCert?.secondSignerTitle || ''}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">صورة التوقيع الثاني</label>
+                  <input 
+                    name="secondSignatureFile" 
+                    type="file" accept="image/*"
+                    className="w-full px-4 py-2 border rounded-lg outline-none" 
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">خيارات العرض (البيانات المطبوعة)</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input name="showIssueDate" type="checkbox" defaultChecked={editingCert ? editingCert.showIssueDate : true} className="w-4 h-4 text-green-600 rounded" />
+                      <span className="text-gray-700 text-sm font-bold">تاريخ الإصدار</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input name="showSerialNumber" type="checkbox" defaultChecked={editingCert ? editingCert.showSerialNumber : true} className="w-4 h-4 text-green-600 rounded" />
+                      <span className="text-gray-700 text-sm font-bold">الرقم التسلسلي</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input name="showVerificationCode" type="checkbox" defaultChecked={editingCert ? editingCert.showVerificationCode : true} className="w-4 h-4 text-green-600 rounded" />
+                      <span className="text-gray-700 text-sm font-bold">كود التحقق QR</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input name="showTrainingHours" type="checkbox" defaultChecked={editingCert ? editingCert.showTrainingHours : true} className="w-4 h-4 text-green-600 rounded" />
+                      <span className="text-gray-700 text-sm font-bold">عدد الساعات</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input name="showGrade" type="checkbox" defaultChecked={editingCert ? editingCert.showGrade : true} className="w-4 h-4 text-green-600 rounded" />
+                      <span className="text-gray-700 text-sm font-bold">التقدير</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">الإعدادات الإدارية</h4>
+                </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">الترتيب <span className="text-red-500">*</span></label>
                   <input 

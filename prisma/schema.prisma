@@ -43,24 +43,56 @@ model Course {
 }
 
 model Certificate {
-  id               String   @id @default(cuid())
-  courseId         String
-  title            String
-  description      String
-  certificateBody  String
-  displayOrder     Int      @default(0)
-  isPublished      Boolean  @default(true)
-  isSuspended      Boolean  @default(false)
-  suspensionReason String?
-  imageAssetId     String?
-  fileAssetId      String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                     String  @id @default(cuid())
+  courseId               String
+  title                  String
+  description            String
+  certificateBody        String
+  displayOrder           Int     @default(0)
+  isPublished            Boolean @default(true)
+  isSuspended            Boolean @default(false)
+  suspensionReason       String?
+  imageAssetId           String?
+  fileAssetId            String?
+  issuerName             String?
+  universityName         String?
+  platformName           String?
+  certificateOpeningText String?
+  certificateClosingText String?
 
-  course     Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  imageAsset MediaAsset?        @relation("CertificateImage", fields: [imageAssetId], references: [id])
-  fileAsset  MediaAsset?        @relation("CertificateFile", fields: [fileAssetId], references: [id])
-  issues     CertificateIssue[]
+  logoAssetId            String?
+  sealAssetId            String?
+  firstSignatureAssetId  String?
+  secondSignatureAssetId String?
+
+  firstSignerName   String?
+  firstSignerTitle  String?
+  secondSignerName  String?
+  secondSignerTitle String?
+
+  primaryColor   String?
+  secondaryColor String?
+  designKey      String?
+
+  showSerialNumber     Boolean @default(true)
+  showVerificationCode Boolean @default(true)
+  showIssueDate        Boolean @default(true)
+  showTrainingHours    Boolean @default(true)
+  showGrade            Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  imageAsset MediaAsset? @relation("CertificateImage", fields: [imageAssetId], references: [id])
+  fileAsset  MediaAsset? @relation("CertificateFile", fields: [fileAssetId], references: [id])
+
+  logoAsset            MediaAsset? @relation("CertificateLogo", fields: [logoAssetId], references: [id])
+  sealAsset            MediaAsset? @relation("CertificateSeal", fields: [sealAssetId], references: [id])
+  firstSignatureAsset  MediaAsset? @relation("CertificateFirstSignature", fields: [firstSignatureAssetId], references: [id])
+  secondSignatureAsset MediaAsset? @relation("CertificateSecondSignature", fields: [secondSignatureAssetId], references: [id])
+
+  issues CertificateIssue[]
 }
 
 model Visitor {
@@ -198,6 +230,11 @@ model MediaAsset {
   courseImages      Course[]      @relation("CourseImage")
   certificateImages Certificate[] @relation("CertificateImage")
   certificateFiles  Certificate[] @relation("CertificateFile")
+
+  certificateLogos            Certificate[] @relation("CertificateLogo")
+  certificateSeals            Certificate[] @relation("CertificateSeal")
+  certificateFirstSignatures  Certificate[] @relation("CertificateFirstSignature")
+  certificateSecondSignatures Certificate[] @relation("CertificateSecondSignature")
 }
 
 model AuditLog {
@@ -241,11 +278,31 @@ model CertificateIssue {
   revokedAt        DateTime?
   revocationReason String?
 
-  certificateTitleSnapshot String
-  certificateBodySnapshot  String
-  courseTitleSnapshot      String
-  templateDesignSnapshot   String?
-  customFieldsJson         String?
+  certificateTitleSnapshot       String
+  certificateBodySnapshot        String
+  certificateOpeningTextSnapshot String?
+  certificateClosingTextSnapshot String?
+  courseTitleSnapshot            String
+
+  issuerNameSnapshot     String?
+  universityNameSnapshot String?
+  platformNameSnapshot   String?
+
+  logoAssetIdSnapshot            String?
+  sealAssetIdSnapshot            String?
+  firstSignatureAssetIdSnapshot  String?
+  secondSignatureAssetIdSnapshot String?
+
+  firstSignerNameSnapshot   String?
+  firstSignerTitleSnapshot  String?
+  secondSignerNameSnapshot  String?
+  secondSignerTitleSnapshot String?
+
+  primaryColorSnapshot   String?
+  secondaryColorSnapshot String?
+  designKeySnapshot      String?
+  templateDesignSnapshot String?
+  customFieldsJson       String?
 
   createdByAdminUserId String?
   createdByAdminUser   AdminUser? @relation(fields: [createdByAdminUserId], references: [id], onDelete: SetNull)

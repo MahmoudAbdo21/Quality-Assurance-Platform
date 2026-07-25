@@ -53,7 +53,13 @@ export async function issueCertificate(formData: FormData) {
   try {
     const template = await prisma.certificate.findUnique({
       where: { id: validation.data.certificateId },
-      include: { course: true }
+      include: { 
+        course: true,
+        logoAsset: true,
+        sealAsset: true,
+        firstSignatureAsset: true,
+        secondSignatureAsset: true
+      }
     });
 
     if (!template) return { error: 'قالب الشهادة غير موجود' };
@@ -68,6 +74,49 @@ export async function issueCertificate(formData: FormData) {
       const reg = await prisma.courseRegistration.findUnique({ where: { id: validation.data.registrationId } });
       if (!reg) return { error: 'التسجيل غير موجود' };
       if (reg.courseId !== template.courseId) return { error: 'التسجيل لا ينتمي لنفس الدورة' };
+    }
+
+    const filesToUpload: { field: string, file: File | null }[] = [
+      { field: 'sealFile', file: formData.get('sealFile') as File | null },
+      { field: 'firstSignatureFile', file: formData.get('firstSignatureFile') as File | null },
+      { field: 'secondSignatureFile', file: formData.get('secondSignatureFile') as File | null },
+    ];
+
+    const overrideAssets: Record<string, string | null> = {
+      sealAssetIdSnapshot: template.sealAsset?.relativePath || null,
+      firstSignatureAssetIdSnapshot: template.firstSignatureAsset?.relativePath || null,
+      secondSignatureAssetIdSnapshot: template.secondSignatureAsset?.relativePath || null,
+    };
+
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    for (const { field, file } of filesToUpload) {
+      if (file && file.size > 0 && typeof file !== 'string') {
+        const ext = path.extname(file.name) || '.png';
+        const fileName = `${crypto.randomBytes(16).toString('hex')}${ext}`;
+        const relativePath = `/uploads/certificates/${fileName}`;
+        const absolutePath = path.join(process.cwd(), 'public', 'uploads', 'certificates');
+        
+        await fs.mkdir(absolutePath, { recursive: true });
+        
+        const arrayBuffer = await file.arrayBuffer();
+        await fs.writeFile(path.join(absolutePath, fileName), Buffer.from(arrayBuffer));
+        
+        const mediaAsset = await prisma.mediaAsset.create({
+          data: {
+            originalName: file.name,
+            storedName: fileName,
+            mimeType: file.type || 'image/png',
+            sizeBytes: file.size,
+            relativePath,
+          }
+        });
+
+        if (field === 'sealFile') overrideAssets.sealAssetIdSnapshot = mediaAsset.relativePath;
+        if (field === 'firstSignatureFile') overrideAssets.firstSignatureAssetIdSnapshot = mediaAsset.relativePath;
+        if (field === 'secondSignatureFile') overrideAssets.secondSignatureAssetIdSnapshot = mediaAsset.relativePath;
+      }
     }
 
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -98,7 +147,27 @@ export async function issueCertificate(formData: FormData) {
           
           certificateTitleSnapshot: template.title,
           certificateBodySnapshot: template.certificateBody,
+          certificateOpeningTextSnapshot: template.certificateOpeningText,
+          certificateClosingTextSnapshot: template.certificateClosingText,
           courseTitleSnapshot: template.course.title,
+          
+          issuerNameSnapshot: template.issuerName,
+          universityNameSnapshot: template.universityName,
+          platformNameSnapshot: template.platformName,
+          
+          logoAssetIdSnapshot: template.logoAsset?.relativePath || null,
+          sealAssetIdSnapshot: overrideAssets.sealAssetIdSnapshot,
+          firstSignatureAssetIdSnapshot: overrideAssets.firstSignatureAssetIdSnapshot,
+          secondSignatureAssetIdSnapshot: overrideAssets.secondSignatureAssetIdSnapshot,
+          
+          firstSignerNameSnapshot: formData.get('firstSignerName') as string || template.firstSignerName,
+          firstSignerTitleSnapshot: formData.get('firstSignerTitle') as string || template.firstSignerTitle,
+          secondSignerNameSnapshot: formData.get('secondSignerName') as string || template.secondSignerName,
+          secondSignerTitleSnapshot: formData.get('secondSignerTitle') as string || template.secondSignerTitle,
+          
+          primaryColorSnapshot: template.primaryColor,
+          secondaryColorSnapshot: template.secondaryColor,
+          designKeySnapshot: template.designKey,
           
           createdByAdminUserId: auth.user!.id,
         }
