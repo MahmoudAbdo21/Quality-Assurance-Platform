@@ -1,412 +1,229 @@
 "use client";
 
 import { useState } from 'react';
-import { saveCertificateTemplate, deleteCertificateTemplate } from '@/actions/admin-certificate-templates';
+import { saveCertificate, deleteCertificate } from '@/actions/admin-certificates';
 import type { Certificate, Course } from '@prisma/client';
-import CertificatePreviewModal from '@/components/certificates/CertificatePreviewModal';
+import { Loader2, Plus, Edit, Trash2 } from 'lucide-react';
 
-type TemplateWithCourse = Certificate & { course: Course; _count: { issues: number } };
+type CertificateWithCourse = Certificate & { course: Course; _count: { awards: number } };
 
-export default function CertificateTemplatesTable({ 
-  templates, 
-  courses 
-}: { 
-  templates: TemplateWithCourse[],
-  courses: Course[] 
+export default function CertificateTemplatesTable({
+  certificates,
+  courses
+}: {
+  certificates: CertificateWithCourse[];
+  courses: Course[];
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [editingCert, setEditingCert] = useState<TemplateWithCourse | null>(null);
-  const [previewCert, setPreviewCert] = useState<TemplateWithCourse | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCert, setEditingCert] = useState<CertificateWithCourse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function openNew() {
-    setEditingCert(null);
-    setIsOpen(true);
-    setError('');
-  }
+  // Filter courses that don't have a certificate yet for the dropdown (only if creating new)
+  const availableCourses = editingCert
+    ? courses // when editing, we don't care, we just show the selected course
+    : courses.filter(c => !certificates.some(cert => cert.courseId === c.id));
 
-  function openEdit(cert: TemplateWithCourse) {
+  const handleOpenModal = (cert: CertificateWithCourse | null = null) => {
     setEditingCert(cert);
-    setIsOpen(true);
-    setError('');
-  }
+    setIsModalOpen(true);
+  };
 
-  async function handleDelete(id: string) {
-    if (confirm('هل أنت متأكد من حذف هذا القالب؟ لا يمكن الحذف إذا كانت هناك شهادات صادرة مرتبطة به.')) {
-      const result = await deleteCertificateTemplate(id);
-      if (result.error) alert(result.error);
+  const handleCloseModal = () => {
+    setEditingCert(null);
+    setIsModalOpen(false);
+  };
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    if (editingCert) {
+      formData.append('id', editingCert.id);
+    }
+    
+    // Add default title if empty
+    if (!formData.get('title')) {
+      const courseId = formData.get('courseId');
+      const course = courses.find(c => c.id === courseId);
+      if (course) {
+        formData.set('title', `شهادة ${course.title}`);
+      }
+    }
+
+    const result = await saveCertificate(formData);
+    
+    setIsLoading(false);
+    
+    if (result.error) {
+      alert(result.error);
+    } else {
+      alert(editingCert ? 'تم تحديث الشهادة' : 'تم إضافة الشهادة بنجاح');
+      handleCloseModal();
     }
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    const formData = new FormData(e.currentTarget);
-    const result = await saveCertificateTemplate(formData);
+  async function handleDelete(id: string) {
+    if (!confirm('هل أنت متأكد من حذف هذه الشهادة؟')) return;
     
+    const result = await deleteCertificate(id);
     if (result.error) {
-      setError(result.error);
-      setIsSubmitting(false);
+      alert(result.error);
     } else {
-      setIsOpen(false);
-      setIsSubmitting(false);
+      alert('تم حذف الشهادة بنجاح');
     }
   }
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">قوالب الشهادات</h2>
-        <button onClick={openNew} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow font-bold transition">
-          + إضافة قالب جديد
-        </button>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">شهادات الدورات</h2>
+        {availableCourses.length > 0 && (
+          <button 
+            onClick={() => handleOpenModal()} 
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+          >
+            <Plus size={18} />
+            إضافة شهادة لدورة
+          </button>
+        )}
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-200">
-        <table className="w-full text-right border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-gray-700">
-              <th className="p-4 font-bold border-b">اسم القالب</th>
-              <th className="p-4 font-bold border-b">الدورة</th>
-              <th className="p-4 font-bold border-b text-center">الشهادات الصادرة</th>
-              <th className="p-4 font-bold border-b text-center">الحالة</th>
-              <th className="p-4 font-bold border-b">الإجراءات</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-right border-collapse border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-200 p-2">الدورة</th>
+              <th className="border border-gray-200 p-2">عنوان الشهادة</th>
+              <th className="border border-gray-200 p-2">الحالة</th>
+              <th className="border border-gray-200 p-2">الشهادات الممنوحة</th>
+              <th className="border border-gray-200 p-2 text-center">الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {templates.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">لا توجد قوالب حالياً</td>
+            {certificates.map(cert => (
+              <tr key={cert.id} className="hover:bg-gray-50">
+                <td className="border border-gray-200 p-2">{cert.course.title}</td>
+                <td className="border border-gray-200 p-2">{cert.title}</td>
+                <td className="border border-gray-200 p-2">
+                  {!cert.isPublished ? (
+                    <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded text-sm">مسودة</span>
+                  ) : cert.isSuspended ? (
+                    <span className="text-red-600 bg-red-100 px-2 py-1 rounded text-sm">معلقة</span>
+                  ) : (
+                    <span className="text-green-600 bg-green-100 px-2 py-1 rounded text-sm">نشطة</span>
+                  )}
+                </td>
+                <td className="border border-gray-200 p-2">{cert._count.awards}</td>
+                <td className="border border-gray-200 p-2">
+                  <div className="flex justify-center gap-2">
+                    <button onClick={() => handleOpenModal(cert)} className="text-blue-600 hover:text-blue-800" title="تعديل">
+                      <Edit size={18} />
+                    </button>
+                    <button onClick={() => handleDelete(cert.id)} className="text-red-600 hover:text-red-800" title="حذف">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </td>
               </tr>
-            ) : (
-              templates.map(cert => (
-                <tr key={cert.id} className="border-b hover:bg-gray-50 transition">
-                  <td className="p-4 font-semibold text-gray-800">{cert.title}</td>
-                  <td className="p-4 text-gray-600">{cert.course.title}</td>
-                  <td className="p-4 text-center font-bold text-gray-700">{cert._count?.issues || 0}</td>
-                  <td className="p-4 text-center">
-                    {cert.isPublished ? (
-                      cert.isSuspended ? (
-                        <span className="text-red-600 font-bold text-sm bg-red-50 px-3 py-1 rounded-full border border-red-200">معلق ⚠️</span>
-                      ) : (
-                        <span className="text-green-600 font-bold text-sm bg-green-50 px-3 py-1 rounded-full border border-green-200">منشور ✅</span>
-                      )
-                    ) : (
-                      <span className="text-gray-500 font-bold text-sm bg-gray-100 px-3 py-1 rounded-full border border-gray-200">مسودة 📝</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => setPreviewCert(cert)}
-                        className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-indigo-200 flex items-center gap-1"
-                        title="معاينة"
-                      >
-                        👁️ معاينة
-                      </button>
-                      <button onClick={() => openEdit(cert)} className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-blue-200">تعديل</button>
-                      {cert._count?.issues === 0 && (
-                        <button onClick={() => handleDelete(cert.id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition text-sm rounded px-3 py-1.5 font-bold border border-red-200">حذف</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+            ))}
+            {certificates.length === 0 && (
+              <tr>
+                <td colSpan={5} className="border border-gray-200 p-8 text-center text-gray-500">
+                  لا توجد شهادات حالياً
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" dir="rtl">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in p-8 relative">
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="absolute top-4 left-4 text-gray-400 hover:text-red-500 transition text-2xl"
-            >
-              &times;
-            </button>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
-              {editingCert ? 'تعديل قالب الشهادة' : 'إضافة قالب جديد'}
-            </h3>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-xl font-bold">{editingCert ? 'تعديل الشهادة' : 'إضافة شهادة جديدة'}</h3>
+              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
             
-            <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
-              {editingCert && <input type="hidden" name="id" value={editingCert.id} />}
-              {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg text-sm font-bold">{error}</div>}
-              
+            <form onSubmit={onSubmit} className="p-4 space-y-4">
               <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">الدورة التدريبية <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-bold mb-1">الدورة التدريبية *</label>
                 <select 
-                  required 
                   name="courseId" 
-                  defaultValue={editingCert?.courseId || ''}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white" 
+                  required 
+                  defaultValue={editingCert?.courseId || ''} 
+                  className="w-full p-2 border border-gray-300 rounded"
+                  disabled={!!editingCert}
                 >
-                  <option value="" disabled>اختر الدورة التدريبية...</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>{course.title}</option>
+                  <option value="" disabled>اختر الدورة</option>
+                  {availableCourses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title}</option>
                   ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">اسم القالب <span className="text-red-500">*</span></label>
-                <input 
-                  required 
-                  name="title" 
-                  type="text" 
-                  defaultValue={editingCert?.title || 'شهادة إتمام دورة تدريبية'}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">وصف قصير <span className="text-red-500">*</span></label>
-                <input 
-                  required 
-                  name="description" 
-                  type="text" 
-                  defaultValue={editingCert?.description || ''}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">محتوى ونص الشهادة <span className="text-red-500">*</span></label>
-                <textarea 
-                  required 
-                  name="certificateBody" 
-                  rows={4} 
-                  defaultValue={editingCert?.certificateBody || 'تشهد الهيئة القومية لضمان جودة التعليم والاعتماد بأن المتدرب قد اجتاز بنجاح الدورة التدريبية...'}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
-                ></textarea>
-                <p className="text-xs text-gray-500 mt-1">المتغيرات المدعومة: [اسم_المتدرب]، [تاريخ_الاصدار]</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1">الهوية البصرية</h4>
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">النص الافتتاحي</label>
-                  <input 
-                    name="certificateOpeningText" 
-                    type="text" 
-                    defaultValue={editingCert?.certificateOpeningText || 'تشهد منصة ضمان الجودة والاعتماد الأكاديمي بأن'}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">النص الختامي</label>
-                  <input 
-                    name="certificateClosingText" 
-                    type="text" 
-                    defaultValue={editingCert?.certificateClosingText || 'قد أتم/اجتاز بنجاح الدورة التدريبية'}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">اللون الأساسي</label>
-                  <input 
-                    name="primaryColor" 
-                    type="color" 
-                    defaultValue={editingCert?.primaryColor || '#15803D'}
-                    className="w-full h-10 border rounded-lg cursor-pointer" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">اللون الثانوي</label>
-                  <input 
-                    name="secondaryColor" 
-                    type="color" 
-                    defaultValue={editingCert?.secondaryColor || '#FBBF24'}
-                    className="w-full h-10 border rounded-lg cursor-pointer" 
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">الشعارات والأختام</h4>
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">شعار الجهة (Logo)</label>
-                  <input 
-                    name="logoFile" 
-                    type="file" accept="image/*"
-                    className="w-full px-4 py-2 border rounded-lg outline-none" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">ختم الشهادة (Seal)</label>
-                  <input 
-                    name="sealFile" 
-                    type="file" accept="image/*"
-                    className="w-full px-4 py-2 border rounded-lg outline-none" 
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">التوقيع الأول</h4>
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">اسم صاحب التوقيع</label>
-                  <input 
-                    name="firstSignerName" 
-                    type="text" 
-                    defaultValue={editingCert?.firstSignerName || ''}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">المسمى الوظيفي</label>
-                  <input 
-                    name="firstSignerTitle" 
-                    type="text" 
-                    defaultValue={editingCert?.firstSignerTitle || ''}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">صورة التوقيع الأول</label>
-                  <input 
-                    name="firstSignatureFile" 
-                    type="file" accept="image/*"
-                    className="w-full px-4 py-2 border rounded-lg outline-none" 
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">التوقيع الثاني</h4>
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">اسم صاحب التوقيع</label>
-                  <input 
-                    name="secondSignerName" 
-                    type="text" 
-                    defaultValue={editingCert?.secondSignerName || ''}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">المسمى الوظيفي</label>
-                  <input 
-                    name="secondSignerTitle" 
-                    type="text" 
-                    defaultValue={editingCert?.secondSignerTitle || ''}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">صورة التوقيع الثاني</label>
-                  <input 
-                    name="secondSignatureFile" 
-                    type="file" accept="image/*"
-                    className="w-full px-4 py-2 border rounded-lg outline-none" 
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">خيارات العرض (البيانات المطبوعة)</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input name="showIssueDate" type="checkbox" defaultChecked={editingCert ? editingCert.showIssueDate : true} className="w-4 h-4 text-green-600 rounded" />
-                      <span className="text-gray-700 text-sm font-bold">تاريخ الإصدار</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input name="showSerialNumber" type="checkbox" defaultChecked={editingCert ? editingCert.showSerialNumber : true} className="w-4 h-4 text-green-600 rounded" />
-                      <span className="text-gray-700 text-sm font-bold">الرقم التسلسلي</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input name="showVerificationCode" type="checkbox" defaultChecked={editingCert ? editingCert.showVerificationCode : true} className="w-4 h-4 text-green-600 rounded" />
-                      <span className="text-gray-700 text-sm font-bold">كود التحقق QR</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input name="showTrainingHours" type="checkbox" defaultChecked={editingCert ? editingCert.showTrainingHours : true} className="w-4 h-4 text-green-600 rounded" />
-                      <span className="text-gray-700 text-sm font-bold">عدد الساعات</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input name="showGrade" type="checkbox" defaultChecked={editingCert ? editingCert.showGrade : true} className="w-4 h-4 text-green-600 rounded" />
-                      <span className="text-gray-700 text-sm font-bold">التقدير</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <h4 className="font-bold text-gray-800 border-b pb-1 mt-4">الإعدادات الإدارية</h4>
-                </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">الترتيب <span className="text-red-500">*</span></label>
-                  <input 
-                    required 
-                    name="displayOrder" 
-                    type="number" 
-                    defaultValue={editingCert?.displayOrder ?? 0}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2 pt-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      name="isPublished" 
-                      type="checkbox" 
-                      defaultChecked={editingCert ? editingCert.isPublished : true}
-                      className="w-5 h-5 text-green-600 rounded focus:ring-green-500" 
-                    />
-                    <span className="text-gray-700 font-bold text-sm">تفعيل القالب (نشر)</span>
-                  </label>
-                  
                   {editingCert && (
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input 
-                        name="isSuspended" 
-                        type="checkbox" 
-                        defaultChecked={editingCert.isSuspended}
-                        className="w-5 h-5 text-red-600 rounded focus:ring-red-500" 
-                      />
-                      <span className="text-red-600 font-bold text-sm">تعليق القالب</span>
-                    </label>
+                    <option value={editingCert.courseId}>{editingCert.course.title}</option>
                   )}
-                </div>
+                </select>
+                {editingCert && <input type="hidden" name="courseId" value={editingCert.courseId} />}
               </div>
 
-              <div className="flex justify-end gap-3 mt-8 border-t pt-5">
-                <button 
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="px-6 py-2 border rounded-lg hover:bg-gray-50 transition font-bold"
-                >
+              <div>
+                <label className="block text-sm font-bold mb-1">عنوان الشهادة</label>
+                <input 
+                  type="text" 
+                  name="title" 
+                  defaultValue={editingCert?.title || ''} 
+                  placeholder="مثال: شهادة اجتياز دورة..."
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+                <p className="text-xs text-gray-500 mt-1">يترك فارغاً لاستخدام العنوان الافتراضي</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-1">وصف قصير (اختياري)</label>
+                <textarea 
+                  name="description" 
+                  defaultValue={editingCert?.description || ''} 
+                  rows={2}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  name="isPublished" 
+                  id="isPublished"
+                  defaultChecked={editingCert ? editingCert.isPublished : true} 
+                  className="w-4 h-4"
+                />
+                <label htmlFor="isPublished" className="font-bold">نشر الشهادة (إتاحتها للطلاب)</label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  name="isSuspended" 
+                  id="isSuspended"
+                  defaultChecked={editingCert ? editingCert.isSuspended : false} 
+                  className="w-4 h-4"
+                />
+                <label htmlFor="isSuspended" className="font-bold text-red-600">تعليق الشهادة مؤقتاً</label>
+              </div>
+
+              <div className="pt-4 border-t flex justify-end gap-2">
+                <button type="button" onClick={handleCloseModal} className="px-4 py-2 border rounded hover:bg-gray-50">
                   إلغاء
                 </button>
-                <button 
-                  disabled={isSubmitting}
-                  type="submit" 
-                  className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                >
-                  {isSubmitting ? 'جاري الحفظ...' : 'حفظ القالب'}
+                <button type="submit" disabled={isLoading} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2">
+                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : null}
+                  حفظ الشهادة
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {previewCert && (
-        <CertificatePreviewModal 
-          isOpen={!!previewCert}
-          onClose={() => setPreviewCert(null)}
-          data={{
-            certificateId: previewCert.id,
-            certificateTitle: previewCert.title,
-            certificateBody: previewCert.certificateBody,
-            courseTitle: previewCert.course?.title || 'دورة غير محددة',
-            participantName: 'اسم المستفيد',
-            issueDate: new Date().toLocaleDateString('ar-EG'),
-            isAdminPreview: true
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 }

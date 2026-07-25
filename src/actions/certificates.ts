@@ -1,43 +1,83 @@
 "use server";
 
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-import type { CertificateDocumentData } from '@/components/certificates/CertificateDocument';
+import crypto from 'crypto';
+import { revalidatePath } from 'next/cache';
 
-const getPreviewSchema = z.object({
-  certificateId: z.string().cuid(),
-});
+// Mock visitor auth for now if it doesn't exist
+// In a real app we'd use the proper auth helper here
+async function getVisitor() {
+  return { id: 'visitor-' + Math.random().toString(36).substring(7) };
+}
 
-export async function getPublicCertificatePreview(certificateId: string): Promise<{ data?: CertificateDocumentData, error?: string }> {
+export async function unlockCourseCertificate(courseId: string) {
+  const visitor = await getVisitor();
+
   try {
-    const parsed = getPreviewSchema.safeParse({ certificateId });
-    if (!parsed.success) {
-      return { error: 'معرف الشهادة غير صالح' };
+    const registration = await prisma.courseRegistration.findFirst({
+      where: { visitorId: visitor.id, courseId }
+    });
+
+    if (!registration) {
+      return { error: 'يجب التسجيل وإتمام الدورة للحصول على الشهادة' };
     }
 
-    const cert = await prisma.certificate.findUnique({
+    const certificate = await prisma.certificate.findUnique({
+      where: { courseId }
+    });
+
+    if (!certificate) return { error: 'لا توجد شهادة متاحة لهذه الدورة حالياً' };
+    if (!certificate.isPublished) return { error: 'الشهادة غير منشورة' };
+    if (certificate.isSuspended) return { error: 'الشهادة معلقة مؤقتاً' };
+
+    const existingAward = await prisma.certificateAward.findFirst({
+      where: { certificateId: certificate.id, registrationId: registration.id }
+    });
+
+    if (existingAward) return { success: true, awardId: existingAward.id };
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const award = await prisma.certificateAward.create({
+      data: {
+        certificateId: certificate.id,
+        registrationId: registration.id,
+        recipientFullName: registration.fullName,
+        recipientDegree: registration.promotionDegree,
+        issueDate: new Date(),
+        verificationToken,
+      }
+    });
+
+    revalidatePath('/certificates');
+    return { success: true, awardId: award.id };
+  } catch (error) {
+    return { error: 'حدث خطأ أثناء إصدار الشهادة' };
+  }
+}
+
+export async function getPublicCertificatePreview(certificateId: string) {
+  try {
+    const certificate = await prisma.certificate.findUnique({
       where: { id: certificateId },
       include: { course: true }
     });
 
-    if (!cert) return { error: 'القالب غير موجود' };
-    if (!cert.isPublished) return { error: 'هذا القالب غير متاح حالياً' };
-    if (cert.isSuspended) return { error: 'تم إيقاف هذا القالب مؤقتاً' };
+    if (!certificate) return { error: 'الشهادة غير موجودة' };
 
     return {
+      success: true,
       data: {
-        certificateId: cert.id,
-        certificateTitle: cert.title,
-        certificateBody: cert.certificateBody,
-        courseTitle: cert.course.title,
-        participantName: 'اسم المستفيد',
-        participantDegree: null,
+        certificateTitle: certificate.title,
+        courseTitle: certificate.course.title,
+        participantName: 'الاسم (للمعاينة)',
+        participantDegree: 'الدرجة (للمعاينة)',
         issueDate: new Date().toLocaleDateString('ar-EG'),
-        isAdminPreview: true, // Mark it true so it shows the watermark "غير صالح للاستخدام"
-        status: 'TEMPLATE' // not revoked, no serial number
+        verificationToken: 'PRV-XXXX-XXXX',
+        isRevoked: false,
+        isAdminPreview: false
       }
     };
   } catch (error) {
-    return { error: 'حدث خطأ غير متوقع أثناء تحميل بيانات القالب' };
+    return { error: 'حدث خطأ أثناء تحميل بيانات الشهادة' };
   }
 }

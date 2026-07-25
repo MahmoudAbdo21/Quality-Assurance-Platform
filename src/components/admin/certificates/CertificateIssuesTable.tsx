@@ -1,23 +1,21 @@
 "use client";
 
 import { useState } from 'react';
-import { revokeCertificateIssue } from '@/actions/admin-certificate-issues';
-import type { CertificateIssue, Certificate, Course } from '@prisma/client';
+import { revokeCertificate, deleteGrantedCertificate } from '@/actions/admin-certificates';
+import type { CertificateAward, Certificate, Course } from '@prisma/client';
 import CertificatePreviewModal from '@/components/certificates/CertificatePreviewModal';
 import IssueCertificateDialog from './IssueCertificateDialog';
 import type { CertificateDocumentData } from '@/components/certificates/CertificateDocument';
 
-type IssueWithRelations = CertificateIssue & { certificate: Certificate & { course: Course } };
-type TemplateWithCourse = Certificate & { course: Course };
+type AwardWithRelations = CertificateAward & { certificate: Certificate & { course: Course } };
+type CertificateWithCourse = Certificate & { course: Course };
 
 export default function CertificateIssuesTable({ 
-  issues, 
-  templates,
-  courses 
+  awards, 
+  certificates,
 }: { 
-  issues: IssueWithRelations[],
-  templates: TemplateWithCourse[],
-  courses: Course[] 
+  awards: AwardWithRelations[],
+  certificates: CertificateWithCourse[],
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [previewData, setPreviewData] = useState<CertificateDocumentData | null>(null);
@@ -31,17 +29,26 @@ export default function CertificateIssuesTable({
     }
     
     if (confirm('هل أنت متأكد من إلغاء هذه الشهادة؟ لا يمكن التراجع عن هذه الخطوة، وستظهر كملغاة عند التحقق منها.')) {
-      const result = await revokeCertificateIssue(id, reason);
+      const result = await revokeCertificate(id, reason);
       if (result.error) alert(result.error);
+      else alert('تم الإلغاء بنجاح');
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (confirm('هل أنت متأكد من حذف هذه الشهادة الممنوحة؟ (تستخدم فقط في حالات الخطأ ولا يمكن التراجع عنها)')) {
+      const result = await deleteGrantedCertificate(id);
+      if (result.error) alert(result.error);
+      else alert('تم الحذف بنجاح');
     }
   }
 
   return (
     <>
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">الشهادات الصادرة</h2>
-        <button onClick={() => setIsDialogOpen(true)} className="bg-[#15803D] hover:bg-[#166534] text-white px-6 py-2 rounded-lg shadow-md font-bold transition">
-          + إصدار شهادة جديدة
+        <h2 className="text-2xl font-bold text-gray-800">الشهادات الممنوحة</h2>
+        <button onClick={() => setIsDialogOpen(true)} className="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-lg shadow-md font-bold transition">
+          + منح شهادة لمستفيد
         </button>
       </div>
 
@@ -49,82 +56,80 @@ export default function CertificateIssuesTable({
         <table className="w-full text-right border-collapse whitespace-nowrap">
           <thead>
             <tr className="bg-gray-100 text-gray-700">
-              <th className="p-4 font-bold border-b">الرقم التسلسلي</th>
               <th className="p-4 font-bold border-b">اسم المستفيد</th>
+              <th className="p-4 font-bold border-b">الدرجة أو اللقب</th>
               <th className="p-4 font-bold border-b">الدورة</th>
+              <th className="p-4 font-bold border-b">عنوان الشهادة</th>
               <th className="p-4 font-bold border-b">تاريخ الإصدار</th>
               <th className="p-4 font-bold border-b text-center">الحالة</th>
-              <th className="p-4 font-bold border-b">الإجراءات</th>
+              <th className="p-4 font-bold border-b text-center">الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {issues.length === 0 ? (
+            {awards.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-gray-500">لا توجد شهادات صادرة حالياً</td>
+                <td colSpan={7} className="p-6 text-center text-gray-500">لا توجد شهادات ممنوحة حالياً</td>
               </tr>
             ) : (
-              issues.map(issue => (
-                <tr key={issue.id} className="border-b hover:bg-gray-50 transition">
-                  <td className="p-4 font-mono text-sm text-gray-600">{issue.serialNumber}</td>
-                  <td className="p-4 font-semibold text-gray-800">{issue.recipientFullName}</td>
-                  <td className="p-4 text-gray-600 max-w-[200px] truncate" title={issue.courseTitleSnapshot}>
-                    {issue.courseTitleSnapshot}
-                  </td>
-                  <td className="p-4 text-gray-600">{new Date(issue.issueDate).toLocaleDateString('ar-EG')}</td>
+              awards.map(award => (
+                <tr key={award.id} className="border-b hover:bg-gray-50 transition">
+                  <td className="p-4 font-semibold text-gray-800">{award.recipientFullName}</td>
+                  <td className="p-4 text-gray-600">{award.recipientDegree || '-'}</td>
+                  <td className="p-4 text-gray-600 truncate max-w-[150px]">{award.certificate.course.title}</td>
+                  <td className="p-4 text-gray-600 truncate max-w-[150px]">{award.certificate.title}</td>
+                  <td className="p-4 text-gray-600">{new Date(award.issueDate).toLocaleDateString('ar-EG')}</td>
                   <td className="p-4 text-center">
-                    {issue.status === 'ISSUED' ? (
-                      <span className="text-green-700 font-bold text-xs bg-green-50 px-2 py-1 rounded-full border border-green-200">صادرة ✅</span>
-                    ) : issue.status === 'REVOKED' ? (
-                      <span className="text-red-700 font-bold text-xs bg-red-50 px-2 py-1 rounded-full border border-red-200" title={`السبب: ${issue.revocationReason}`}>ملغاة ❌</span>
+                    {!award.isRevoked ? (
+                      <span className="text-green-700 font-bold text-xs bg-green-50 px-2 py-1 rounded border border-green-200">صحيحة ✅</span>
                     ) : (
-                      <span className="text-gray-500 font-bold text-xs bg-gray-100 px-2 py-1 rounded-full">مسودة</span>
+                      <span className="text-red-700 font-bold text-xs bg-red-50 px-2 py-1 rounded border border-red-200" title={`السبب: ${award.revocationReason}`}>ملغاة ❌</span>
                     )}
                   </td>
                   <td className="p-4">
-                    <div className="flex gap-2">
+                    <div className="flex justify-center gap-2">
                       <button 
                         onClick={() => {
                           setPreviewData({
-                            certificateId: issue.certificateId,
-                            certificateTitle: issue.certificateTitleSnapshot,
-                            certificateBody: issue.certificateBodySnapshot,
-                            courseTitle: issue.courseTitleSnapshot,
-                            participantName: issue.recipientFullName,
-                            participantDegree: issue.recipientTitle,
-                            issueDate: new Date(issue.issueDate).toLocaleDateString('ar-EG'),
-                            trainingHours: issue.trainingHours,
-                            grade: issue.grade,
-                            completionDate: issue.completionDate ? new Date(issue.completionDate).toLocaleDateString('ar-EG') : null,
-                            serialNumber: issue.serialNumber,
-                            verificationCode: issue.verificationToken,
-                            status: issue.status,
+                            certificateTitle: award.certificate.title,
+                            courseTitle: award.certificate.course.title,
+                            participantName: award.recipientFullName,
+                            participantDegree: award.recipientDegree,
+                            issueDate: new Date(award.issueDate).toLocaleDateString('ar-EG'),
+                            verificationCode: award.verificationToken,
+                            isRevoked: award.isRevoked,
                             isAdminPreview: true
                           });
                         }}
-                        className="bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition text-xs rounded px-3 py-1.5 font-bold border border-indigo-200"
+                        className="text-blue-600 hover:text-blue-800 transition text-sm font-bold px-2 py-1 bg-blue-50 rounded"
                         title="معاينة"
                       >
-                        👁️ عرض
+                        معاينة
                       </button>
                       <button 
                         onClick={() => {
-                          const link = `${window.location.origin}/certificates/verify?token=${issue.verificationToken}`;
+                          const link = `${window.location.origin}/certificates/verify?token=${award.verificationToken}`;
                           navigator.clipboard.writeText(link);
                           alert('تم نسخ رابط التحقق بنجاح');
                         }}
-                        className="bg-gray-50 text-gray-700 hover:bg-gray-600 hover:text-white transition text-xs rounded px-3 py-1.5 font-bold border border-gray-200"
+                        className="text-gray-700 hover:text-gray-900 transition text-sm font-bold px-2 py-1 bg-gray-100 rounded"
                         title="نسخ الرابط"
                       >
-                        🔗 نسخ الرابط
+                        نسخ الرابط
                       </button>
-                      {issue.status === 'ISSUED' && (
+                      {!award.isRevoked && (
                         <button 
-                          onClick={() => handleRevoke(issue.id)} 
-                          className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition text-xs rounded px-3 py-1.5 font-bold border border-red-200"
+                          onClick={() => handleRevoke(award.id)} 
+                          className="text-orange-600 hover:text-orange-800 transition text-sm font-bold px-2 py-1 bg-orange-50 rounded"
                         >
                           إلغاء
                         </button>
                       )}
+                      <button 
+                        onClick={() => handleDelete(award.id)} 
+                        className="text-red-600 hover:text-red-800 transition text-sm font-bold px-2 py-1 bg-red-50 rounded"
+                      >
+                        حذف
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -137,8 +142,7 @@ export default function CertificateIssuesTable({
       <IssueCertificateDialog 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
-        templates={templates}
-        courses={courses}
+        certificates={certificates}
       />
 
       {previewData && (

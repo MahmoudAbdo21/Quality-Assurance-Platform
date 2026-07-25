@@ -79,10 +79,10 @@ export default function CertificatePreviewModal({ isOpen, onClose, data }: Props
             </h2>
             {data.isAdminPreview && (
               <span className="bg-red-100 text-red-800 px-3 py-1 text-xs rounded-full font-bold">
-                {data.status === 'REVOKED' ? 'شهادة ملغاة' : (data.serialNumber ? 'معاينة إدارية' : 'معاينة قالب')}
+                {data.isRevoked ? 'شهادة ملغاة' : (data.verificationCode ? 'معاينة إدارية' : 'معاينة قالب')}
               </span>
             )}
-            {data.status === 'REVOKED' && !data.isAdminPreview && (
+            {data.isRevoked && !data.isAdminPreview && (
               <span className="bg-red-600 text-white px-3 py-1 text-xs rounded-full font-bold">
                 شهادة ملغاة
               </span>
@@ -118,14 +118,14 @@ export default function CertificatePreviewModal({ isOpen, onClose, data }: Props
           <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 items-center">
             {pdfError && <span className="text-red-500 text-sm font-bold mr-4">{pdfError}</span>}
             
-            {data.isAdminPreview && !data.serialNumber ? (
+            {data.isAdminPreview && !data.verificationCode ? (
               <button 
                 onClick={handlePrint}
                 className="w-full sm:w-auto bg-[#15803D] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#166534] transition flex items-center justify-center gap-2 shadow-sm"
               >
                 🖨️ طباعة نسخة المعاينة
               </button>
-            ) : data.status !== 'REVOKED' ? (
+            ) : !data.isRevoked ? (
               <>
                 <button 
                   onClick={handlePrint}

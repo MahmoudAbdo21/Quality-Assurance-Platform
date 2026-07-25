@@ -15,7 +15,7 @@ export default async function VerifyCertificatePage({
         <div className="text-center bg-white p-8 rounded-2xl shadow-lg border-2 border-red-100 max-w-lg w-full">
           <div className="text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">بيانات غير مكتملة</h2>
-          <p className="text-gray-600 mb-6">الرجاء تقديم كود التحقق أو الرقم التسلسلي للشهادة.</p>
+          <p className="text-gray-600 mb-6">الرجاء تقديم كود التحقق.</p>
           <Link href="/certificates" className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">
             العودة لصفحة الشهادات
           </Link>
@@ -50,8 +50,7 @@ export default async function VerifyCertificatePage({
           </div>
           <div className="text-5xl mb-4">🚫</div>
           <h2 className="text-2xl font-bold text-red-700 mb-2">هذه الشهادة ملغاة</h2>
-          <p className="text-gray-700 font-bold mb-2">الرقم التسلسلي: {result.serialNumber}</p>
-          <p className="text-gray-500 text-sm mb-4">سبب الإلغاء: {result.revocationReason}</p>
+          <p className="text-gray-500 text-sm mb-4">سبب الإلغاء: {result.revocationReason || 'غير محدد'}</p>
           <p className="text-gray-500 text-sm mb-6">
             تم إلغاء هذه الشهادة بتاريخ {result.revokedAt ? new Date(result.revokedAt).toLocaleDateString('ar-EG') : ''}.
           </p>
@@ -63,46 +62,17 @@ export default async function VerifyCertificatePage({
     );
   }
 
-  const issue = result.certificate!;
+  const award = result.award!;
 
   const data = {
-    certificateId: issue.certificateId,
-    certificateTitle: issue.certificateTitleSnapshot,
-    certificateBody: issue.certificateBodySnapshot,
-    certificateOpeningText: issue.certificateOpeningTextSnapshot,
-    certificateClosingText: issue.certificateClosingTextSnapshot,
-    courseTitle: issue.courseTitleSnapshot,
+    certificateTitle: award.certificate.title,
+    courseTitle: award.certificate.course.title,
     
-    participantName: issue.recipientFullName,
-    participantDegree: issue.recipientTitle,
-    participantFaculty: issue.recipientFaculty,
-    participantDepartment: issue.recipientDepartment,
-    participantOrganization: issue.recipientOrganization,
+    participantName: award.recipientFullName,
+    participantDegree: award.recipientDegree,
     
-    issueDate: new Date(issue.issueDate).toLocaleDateString('ar-EG'),
-    trainingHours: issue.trainingHours,
-    grade: issue.grade,
-    completionDate: issue.completionDate ? new Date(issue.completionDate).toLocaleDateString('ar-EG') : null,
-    serialNumber: issue.serialNumber,
-    verificationCode: issue.verificationToken,
-    status: issue.status,
-    
-    issuerName: issue.issuerNameSnapshot,
-    universityName: issue.universityNameSnapshot,
-    platformName: issue.platformNameSnapshot,
-    
-    logoUrl: issue.logoAssetIdSnapshot, // Ideally relations would be populated, but assuming IDs or paths for now. For public verify we might need the actual relativePath. Wait. I'll need to fetch the assets in verify page.
-    sealUrl: issue.sealAssetIdSnapshot,
-    firstSignatureUrl: issue.firstSignatureAssetIdSnapshot,
-    secondSignatureUrl: issue.secondSignatureAssetIdSnapshot,
-    
-    firstSignerName: issue.firstSignerNameSnapshot,
-    firstSignerTitle: issue.firstSignerTitleSnapshot,
-    secondSignerName: issue.secondSignerNameSnapshot,
-    secondSignerTitle: issue.secondSignerTitleSnapshot,
-    
-    primaryColor: issue.primaryColorSnapshot,
-    secondaryColor: issue.secondaryColorSnapshot,
+    issueDate: new Date(award.issueDate).toLocaleDateString('ar-EG'),
+    verificationCode: award.verificationToken,
     
     isAdminPreview: false
   };
@@ -114,7 +84,7 @@ export default async function VerifyCertificatePage({
           ✅ شهادة موثقة وصحيحة
         </div>
         <h2 className="text-3xl font-bold text-gray-800 mb-2">معلومات الشهادة</h2>
-        <p className="text-gray-500">تم التحقق من صحة هذه الشهادة من سجلات جامعة الأزهر</p>
+        <p className="text-gray-500">تم التحقق من صحة هذه الشهادة من سجلات منصة ضمان الجودة</p>
       </div>
 
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8">
@@ -123,33 +93,27 @@ export default async function VerifyCertificatePage({
             <div className="space-y-4">
               <div>
                 <span className="block text-gray-500 text-sm mb-1">اسم المستفيد</span>
-                <strong className="text-xl text-gray-900">{issue.recipientTitle ? `${issue.recipientTitle}/ ` : ''}{issue.recipientFullName}</strong>
+                <strong className="text-xl text-gray-900">{award.recipientDegree ? `${award.recipientDegree}/ ` : ''}{award.recipientFullName}</strong>
               </div>
               <div>
                 <span className="block text-gray-500 text-sm mb-1">الدورة التدريبية</span>
-                <strong className="text-lg text-[#15803D]">{issue.courseTitleSnapshot}</strong>
+                <strong className="text-lg text-[#15803D]">{award.certificate.course.title}</strong>
               </div>
               <div>
                 <span className="block text-gray-500 text-sm mb-1">عنوان الشهادة</span>
-                <strong className="text-md text-gray-800">{issue.certificateTitleSnapshot}</strong>
+                <strong className="text-md text-gray-800">{award.certificate.title}</strong>
               </div>
             </div>
             
             <div className="space-y-4 md:border-r md:pr-6 border-gray-100">
               <div>
-                <span className="block text-gray-500 text-sm mb-1">الرقم التسلسلي</span>
-                <strong className="text-lg font-mono text-gray-700 bg-gray-50 px-2 py-1 rounded border inline-block">{issue.serialNumber}</strong>
+                <span className="block text-gray-500 text-sm mb-1">كود التحقق</span>
+                <strong className="text-lg font-mono text-gray-700 bg-gray-50 px-2 py-1 rounded border inline-block">{award.verificationToken}</strong>
               </div>
               <div>
                 <span className="block text-gray-500 text-sm mb-1">تاريخ الإصدار</span>
-                <strong className="text-md text-gray-800">{new Date(issue.issueDate).toLocaleDateString('ar-EG')}</strong>
+                <strong className="text-md text-gray-800">{new Date(award.issueDate).toLocaleDateString('ar-EG')}</strong>
               </div>
-              {issue.grade && (
-                <div>
-                  <span className="block text-gray-500 text-sm mb-1">التقدير</span>
-                  <strong className="text-md text-gray-800">{issue.grade}</strong>
-                </div>
-              )}
             </div>
           </div>
         </div>

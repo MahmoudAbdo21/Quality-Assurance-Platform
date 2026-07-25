@@ -3,44 +3,45 @@
 import { useState } from 'react';
 import CertificateTemplatesTable from './CertificateTemplatesTable';
 import CertificateIssuesTable from './CertificateIssuesTable';
-import type { Certificate, Course, CertificateIssue } from '@prisma/client';
+import type { Certificate, Course, CertificateAward } from '@prisma/client';
 
-type TemplateWithCourse = Certificate & { course: Course; _count: { issues: number } };
-type IssueWithRelations = CertificateIssue & { certificate: Certificate & { course: Course } };
+type CertificateWithCourse = Certificate & { course: Course; _count: { awards: number } };
+type AwardWithRelations = CertificateAward & { certificate: Certificate & { course: Course } };
 
 export default function CertificateAdminPage({
-  templates,
-  issues,
+  certificates,
+  awards,
   courses
 }: {
-  templates: TemplateWithCourse[];
-  issues: IssueWithRelations[];
+  certificates: CertificateWithCourse[];
+  awards: AwardWithRelations[];
   courses: Course[];
 }) {
-  const [activeTab, setActiveTab] = useState<'templates' | 'issues'>('templates');
+  const [activeTab, setActiveTab] = useState<'certificates' | 'awards'>('certificates');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
+      <h1 className="text-2xl font-bold mb-4">إدارة شهادات الدورات</h1>
       <div className="flex gap-4 border-b pb-2">
         <button 
-          onClick={() => setActiveTab('templates')}
-          className={`px-4 py-2 font-bold text-lg transition border-b-4 ${activeTab === 'templates' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          onClick={() => setActiveTab('certificates')}
+          className={`px-4 py-2 font-bold text-lg transition border-b-4 ${activeTab === 'certificates' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
-          قوالب الشهادات
+          شهادات الدورات
         </button>
         <button 
-          onClick={() => setActiveTab('issues')}
-          className={`px-4 py-2 font-bold text-lg transition border-b-4 ${activeTab === 'issues' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          onClick={() => setActiveTab('awards')}
+          className={`px-4 py-2 font-bold text-lg transition border-b-4 ${activeTab === 'awards' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
-          الشهادات الصادرة
+          الشهادات الممنوحة
         </button>
       </div>
 
       <div>
-        {activeTab === 'templates' ? (
-          <CertificateTemplatesTable templates={templates} courses={courses} />
+        {activeTab === 'certificates' ? (
+          <CertificateTemplatesTable certificates={certificates} courses={courses} />
         ) : (
-          <CertificateIssuesTable issues={issues} templates={templates} courses={courses} />
+          <CertificateIssuesTable awards={awards} certificates={certificates} />
         )}
       </div>
     </div>

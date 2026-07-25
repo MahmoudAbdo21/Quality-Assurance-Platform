@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default async function CertificatesPage() {
   const certificates = await prisma.certificate.findMany({
     where: { isPublished: true },
-    orderBy: { displayOrder: 'asc' },
+    orderBy: { createdAt: 'asc' },
     include: { course: true }
   });
 

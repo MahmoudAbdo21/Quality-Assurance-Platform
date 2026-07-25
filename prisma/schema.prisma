@@ -8,19 +8,18 @@ datasource db {
 }
 
 model AdminUser {
-  id                       String             @id @default(cuid())
-  username                 String             @unique
-  displayName              String
-  passwordHash             String
-  role                     String             @default("SUPER_ADMIN")
-  isActive                 Boolean            @default(true)
-  failedLoginCount         Int                @default(0)
-  lockedUntil              DateTime?
-  lastLoginAt              DateTime?
-  sessionVersion           Int                @default(1)
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
-  createdCertificateIssues CertificateIssue[]
+  id               String    @id @default(cuid())
+  username         String    @unique
+  displayName      String
+  passwordHash     String
+  role             String    @default("SUPER_ADMIN")
+  isActive         Boolean   @default(true)
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+  sessionVersion   Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model Course {
@@ -43,56 +42,20 @@ model Course {
 }
 
 model Certificate {
-  id                     String  @id @default(cuid())
-  courseId               String
-  title                  String
-  description            String
-  certificateBody        String
-  displayOrder           Int     @default(0)
-  isPublished            Boolean @default(true)
-  isSuspended            Boolean @default(false)
-  suspensionReason       String?
-  imageAssetId           String?
-  fileAssetId            String?
-  issuerName             String?
-  universityName         String?
-  platformName           String?
-  certificateOpeningText String?
-  certificateClosingText String?
+  id       String @id @default(cuid())
+  courseId String @unique
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
 
-  logoAssetId            String?
-  sealAssetId            String?
-  firstSignatureAssetId  String?
-  secondSignatureAssetId String?
-
-  firstSignerName   String?
-  firstSignerTitle  String?
-  secondSignerName  String?
-  secondSignerTitle String?
-
-  primaryColor   String?
-  secondaryColor String?
-  designKey      String?
-
-  showSerialNumber     Boolean @default(true)
-  showVerificationCode Boolean @default(true)
-  showIssueDate        Boolean @default(true)
-  showTrainingHours    Boolean @default(true)
-  showGrade            Boolean @default(true)
+  title            String
+  description      String?
+  isPublished      Boolean @default(true)
+  isSuspended      Boolean @default(false)
+  suspensionReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  imageAsset MediaAsset? @relation("CertificateImage", fields: [imageAssetId], references: [id])
-  fileAsset  MediaAsset? @relation("CertificateFile", fields: [fileAssetId], references: [id])
-
-  logoAsset            MediaAsset? @relation("CertificateLogo", fields: [logoAssetId], references: [id])
-  sealAsset            MediaAsset? @relation("CertificateSeal", fields: [sealAssetId], references: [id])
-  firstSignatureAsset  MediaAsset? @relation("CertificateFirstSignature", fields: [firstSignatureAssetId], references: [id])
-  secondSignatureAsset MediaAsset? @relation("CertificateSecondSignature", fields: [secondSignatureAssetId], references: [id])
-
-  issues CertificateIssue[]
+  awards CertificateAward[]
 }
 
 model Visitor {
@@ -118,7 +81,7 @@ model CourseRegistration {
 
   visitor           Visitor            @relation(fields: [visitorId], references: [id], onDelete: Cascade)
   course            Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  certificateIssues CertificateIssue[]
+  certificateAwards CertificateAward[]
 
   @@unique([visitorId, courseId])
 }
@@ -227,14 +190,7 @@ model MediaAsset {
   relativePath String
   createdAt    DateTime @default(now())
 
-  courseImages      Course[]      @relation("CourseImage")
-  certificateImages Certificate[] @relation("CertificateImage")
-  certificateFiles  Certificate[] @relation("CertificateFile")
-
-  certificateLogos            Certificate[] @relation("CertificateLogo")
-  certificateSeals            Certificate[] @relation("CertificateSeal")
-  certificateFirstSignatures  Certificate[] @relation("CertificateFirstSignature")
-  certificateSecondSignatures Certificate[] @relation("CertificateSecondSignature")
+  courseImages Course[] @relation("CourseImage")
 }
 
 model AuditLog {
@@ -248,7 +204,7 @@ model AuditLog {
   createdAt   DateTime @default(now())
 }
 
-model CertificateIssue {
+model CertificateAward {
   id String @id @default(cuid())
 
   certificateId String
@@ -257,55 +213,21 @@ model CertificateIssue {
   registrationId String?
   registration   CourseRegistration? @relation(fields: [registrationId], references: [id], onDelete: SetNull)
 
-  recipientFullName     String
-  recipientTitle        String?
-  recipientFaculty      String?
-  recipientDepartment   String?
-  recipientOrganization String?
-  recipientEmail        String?
-  recipientReference    String?
+  recipientFullName String
+  recipientDegree   String?
 
-  issueDate      DateTime
-  completionDate DateTime?
-  trainingHours  Int?
-  grade          String?
-  notes          String?
+  issueDate         DateTime @default(now())
+  verificationToken String   @unique
 
-  serialNumber      String @unique
-  verificationToken String @unique
-
-  status           String    @default("ISSUED")
+  isRevoked        Boolean   @default(false)
   revokedAt        DateTime?
   revocationReason String?
 
-  certificateTitleSnapshot       String
-  certificateBodySnapshot        String
-  certificateOpeningTextSnapshot String?
-  certificateClosingTextSnapshot String?
-  courseTitleSnapshot            String
-
-  issuerNameSnapshot     String?
-  universityNameSnapshot String?
-  platformNameSnapshot   String?
-
-  logoAssetIdSnapshot            String?
-  sealAssetIdSnapshot            String?
-  firstSignatureAssetIdSnapshot  String?
-  secondSignatureAssetIdSnapshot String?
-
-  firstSignerNameSnapshot   String?
-  firstSignerTitleSnapshot  String?
-  secondSignerNameSnapshot  String?
-  secondSignerTitleSnapshot String?
-
-  primaryColorSnapshot   String?
-  secondaryColorSnapshot String?
-  designKeySnapshot      String?
-  templateDesignSnapshot String?
-  customFieldsJson       String?
-
-  createdByAdminUserId String?
-  createdByAdminUser   AdminUser? @relation(fields: [createdByAdminUserId], references: [id], onDelete: SetNull)
+  // Legacy snapshot fields (kept for migration safety, not used in UI or logic)
+  certificateTitleSnapshot String?
+  certificateBodySnapshot  String?
+  courseTitleSnapshot      String?
+  serialNumber             String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -313,7 +235,5 @@ model CertificateIssue {
   @@index([certificateId])
   @@index([registrationId])
   @@index([recipientFullName])
-  @@index([serialNumber])
-  @@index([status])
-  @@index([issueDate])
+  @@map("CertificateIssue")
 }

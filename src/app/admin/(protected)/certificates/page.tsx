@@ -2,19 +2,15 @@ import { prisma } from "@/lib/prisma"
 import CertificateAdminPage from "@/components/admin/certificates/CertificateAdminPage"
 
 export default async function AdminCertificatesRoute() {
-  const templates = await prisma.certificate.findMany({
-    orderBy: { displayOrder: 'asc' },
+  const certificates = await prisma.certificate.findMany({
+    orderBy: { createdAt: 'desc' },
     include: { 
       course: true,
-      logoAsset: true,
-      sealAsset: true,
-      firstSignatureAsset: true,
-      secondSignatureAsset: true,
-      _count: { select: { issues: true } }
+      _count: { select: { awards: true } }
     }
   })
   
-  const issues = await prisma.certificateIssue.findMany({
+  const awards = await prisma.certificateAward.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       certificate: {
@@ -29,7 +25,7 @@ export default async function AdminCertificatesRoute() {
 
   return (
     <div>
-      <CertificateAdminPage templates={templates} issues={issues} courses={courses} />
+      <CertificateAdminPage certificates={certificates} awards={awards} courses={courses} />
     </div>
   )
 }

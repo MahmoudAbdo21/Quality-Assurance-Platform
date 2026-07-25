@@ -4,46 +4,45 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 const verifySchema = z.object({
-  tokenOrSerial: z.string().min(3, "الرمز قصير جداً").max(100, "الرمز طويل جداً").trim()
+  token: z.string().min(3, "الرمز قصير جداً").max(100, "الرمز طويل جداً").trim()
 });
 
-export async function verifyCertificateAction(tokenOrSerial: string) {
-  const validation = verifySchema.safeParse({ tokenOrSerial });
+export async function verifyCertificateAction(token: string) {
+  const validation = verifySchema.safeParse({ token });
   if (!validation.success) {
     return { error: 'بيانات التحقق غير صالحة' };
   }
 
-  const query = validation.data.tokenOrSerial;
+  const query = validation.data.token;
 
   try {
-    const issue = await prisma.certificateIssue.findFirst({
+    const award = await prisma.certificateAward.findFirst({
       where: {
-        OR: [
-          { verificationToken: query },
-          { serialNumber: query }
-        ]
+        verificationToken: query
+      },
+      include: {
+        certificate: {
+          include: {
+            course: true
+          }
+        }
       }
     });
 
-    if (!issue) {
+    if (!award) {
       return { error: 'لم يتم العثور على شهادة بهذا الرمز' };
     }
 
-    if (issue.status === 'DRAFT') {
-      return { error: 'لم يتم العثور على شهادة بهذا الرمز' }; // Pretend it doesn't exist
-    }
-
-    if (issue.status === 'REVOKED') {
+    if (award.isRevoked) {
       return { 
         revoked: true, 
-        revocationReason: issue.revocationReason,
-        issueDate: issue.issueDate,
-        revokedAt: issue.revokedAt,
-        serialNumber: issue.serialNumber
+        revocationReason: award.revocationReason,
+        issueDate: award.issueDate,
+        revokedAt: award.revokedAt,
       };
     }
 
-    return { success: true, certificate: issue };
+    return { success: true, award };
   } catch (error) {
     return { error: 'حدث خطأ أثناء التحقق من الشهادة' };
   }

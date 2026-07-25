@@ -68,8 +68,6 @@ async function main() {
         data: {
           title: certTitlesList[i],
           description: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-          certificateBody: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-          displayOrder: i + 1,
         }
       });
     } else {
@@ -78,8 +76,6 @@ async function main() {
           courseId: course.id,
           title: certTitlesList[i],
           description: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-          certificateBody: 'تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.',
-          displayOrder: i + 1,
         }
       });
     }
