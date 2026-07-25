@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة ضمان الجودة والاعتماد الأكاديمي - جامعة الأزهر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-green: #15803d; /* Emerald 700 */
+            --secondary-green: #16a34a; /* Emerald 600 */
+            --accent-gold: #fbbf24; /* Amber 400 */
+            --dark-gold: #b45309; /* Amber 700 */
+            --light-yellow: #fef08a; /* Yellow 200 */
+            --bg-light: #f0fdf4; /* Green 50 - Very light green background */
+            --text-dark: #1f2937; /* Gray 800 */
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-bottom: 4px solid var(--accent-gold);
+        }
+
+        .tabs-navigation {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            color: #4b5563;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background-color: var(--accent-gold);
+            transition: width 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-green);
+            background-color: var(--light-yellow);
+        }
+
+        .tab-button.active {
+            color: var(--primary-green);
+            font-weight: bold;
+            background-color: transparent;
+            box-shadow: none;
+        }
+        
+        .tab-button.active::after {
+            width: 100%;
+        }
+
+        .interactive-card {
+            border-top-color: var(--accent-gold);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+            border-top-color: var(--primary-green);
+        }
+
+        .interactive-card h3 {
+            color: var(--primary-green);
+        }
+
+        .action-btn {
+            background-color: var(--accent-gold);
+            color: var(--text-dark);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--light-yellow);
+            transform: scale(1.02);
+            color: var(--dark-gold);
+        }
+        
+        .action-btn.registered {
+            background-color: var(--secondary-green);
+            color: white;
+            cursor: default;
+        }
+
+        .stat-item h2 {
+            color: var(--dark-gold);
+        }
+        
+        .stat-item p {
+           color: var(--primary-green);
+           font-weight: 600;
+        }
+
+        .certificate-box.unlocked {
+            border-color: var(--accent-gold);
+            background-color: #fffbeb; /* Amber 50 */
+        }
+        
+        .badge-unlocked {
+            background-color: var(--light-yellow);
+            color: var(--dark-gold);
+        }
+
+        .add-topic-btn {
+            background-color: var(--primary-green);
+            box-shadow: 0 4px 6px -1px rgba(var(--primary-green), 0.5);
+        }
+
+        .add-topic-btn:hover {
+            background-color: var(--secondary-green);
+            box-shadow: 0 10px 15px -3px rgba(var(--primary-green), 0.5);
+        }
+
+        /* Course Button Modern Style */
+        .course-action-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            box-shadow: 0 4px 6px -1px rgba(21, 128, 61, 0.2);
+        }
+
+        .course-action-btn:hover {
+            background: linear-gradient(135deg, #064e3b, var(--primary-green));
+            color: var(--accent-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(21, 128, 61, 0.4);
+            border-color: var(--accent-gold);
+        }
+        
+        .course-action-btn.registered {
+            background: #1e293b;
+            color: var(--accent-gold);
+            border-color: var(--accent-gold);
+            cursor: default;
+            transform: none !important;
+            box-shadow: none;
+        }
+
+        .forum-thread-modern {
+            border-right-color: var(--accent-gold);
+        }
+        
+        .thread-avatar {
+             background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        }
+
+        .know-slide {
+             background: linear-gradient(135deg, #064e3b 0%, var(--primary-green) 100%); /* Emerald 900 to Emerald 700 */
+        }
+        
+        .know-slide h3 {
+             color: var(--accent-gold);
+        }
+        
+        .know-dot.active {
+            background: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+        }
+        
+        .modern-slide {
+            background: linear-gradient(135deg, var(--primary-green), #064e3b);
+        }
+        
+        .modern-slide h3 {
+            color: var(--accent-gold);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hide scrollbar for slider */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="main-header text-white p-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-50">
+        <div class="text-2xl font-bold tracking-wide">البيئة الرقمية لضمان الجودة والتدريب</div>
+        <div class="text-sm font-medium mt-2 md:mt-0 opacity-90">نظام متكامل للاعتماد الأكاديمي</div>
+    </header>
+
+    <nav class="tabs-navigation sticky top-[88px] z-40 flex justify-center flex-wrap gap-2 p-3">
+        <button class="tab-button active px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('home', this)">الرئيسية</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('courses', this)">الدورات التدريبية</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('certificates', this)">الشهادات والاعتمادات</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('forum', this)">منتدى النقاش</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('know-more', this)">اعرف المزيد</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('about', this)">من نحن</button>
+        <button class="tab-button px-5 py-2 rounded-full font-semibold text-sm" onclick="switchTab('contact', this)">اتصل بنا</button>
+    </nav>
+
+    <main class="max-w-7xl mx-auto my-10 px-4 sm:px-6 lg:px-8">
+
+        <section id="home" class="tab-content block fade-in">
+            <!-- Modern Hero Section matching the requested design -->
+            <div class="modern-slide relative rounded-3xl overflow-hidden shadow-2xl p-8 sm:p-14 mb-10 text-white flex flex-col lg:flex-row items-center justify-between gap-10 border border-green-800" style="background: radial-gradient(circle at 70% 50%, #064e3b 0%, #15803d 70%);">
+                <!-- Background Pattern overlay -->
+                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fbbf24 1px, transparent 1px); background-size: 24px 24px;"></div>
+                
+                <!-- Right / Text Side -->
+                <div class="relative z-10 max-w-xl text-right">
+                    <div class="inline-block px-4 py-1.5 rounded-full text-xs font-bold mb-4 shadow-sm" style="background-color: var(--accent-gold); color: #1f2937;">
+                        التميز في التعليم
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
+                        نحو تعليم <span style="color: var(--accent-gold);">معتمد</span> ومستقبل مشرق
+                    </h1>
+                    <p class="text-gray-100 text-base sm:text-lg mb-8 leading-relaxed opacity-95">
+                        الهيئة القومية لضمان جودة التعليم والاعتماد هي الجهة المسؤولة عن نشر ثقافة الجودة وتقييم واعتماد المؤسسات التعليمية للارتقاء بمستوى التعليم في مصر.
+                    </p>
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <button onclick="switchTab('courses', document.querySelectorAll('.tab-button')[1])" class="action-btn px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all">
+                            اكتشف دوراتنا
+                        </button>
+                        <button onclick="switchTab('about', document.querySelectorAll('.tab-button')[5])" class="px-8 py-3.5 rounded-xl font-bold text-sm border-2 border-white/80 hover:bg-white/10 transition-all text-white backdrop-blur-sm">
+                            تعرف علينا أكثر
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Left / Floating Card Side -->
+                <div class="relative z-10 w-full max-w-md flex justify-center">
+                    <div class="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-br from-green-900 to-green-950 p-6 shadow-2xl border border-green-700/60 flex items-center justify-center overflow-hidden group">
+                        <!-- Glowing backdrop light -->
+                        <div class="absolute w-48 h-48 rounded-full bg-yellow-400/20 blur-3xl -top-10 -left-10 pointer-events-none"></div>
+                        
+                        <!-- Floating Badge -->
+                        <div class="absolute top-6 left-6 bg-white text-gray-800 px-4 py-2 rounded-xl shadow-lg flex items-center gap-3 transform -rotate-2 group-hover:rotate-0 transition-transform">
+                            <div class="w-7 h-7 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-xs">✓</div>
+                            <div class="text-right">
+                                <div class="text-xs font-bold text-gray-900">مؤسسة معتمدة</div>
+                                <div class="text-[10px] text-gray-500">ضمان الجودة</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center relative z-10">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-wide text-white drop-shadow-md">Quality Education</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-lg text-center mb-10 border border-green-100">
+                <div class="flex flex-wrap justify-center gap-6 p-4 bg-green-50/50 rounded-xl">
+                    <div class="stat-item flex-1 min-w-[150px] bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                        <h2 class="text-4xl font-bold mb-2">10</h2>
+                        <p class="text-sm">البرامج المتاحة</p>
+                    </div>
+                    <div class="stat-item flex-1 min-w-[150px] bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                        <h2 id="myRegistrationCount" class="text-4xl font-bold mb-2">0</h2>
+                        <p class="text-sm">الدورات المسجلة</p>
+                    </div>
+                    <div class="stat-item flex-1 min-w-[150px] bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                        <h2 id="myCertificatesCount" class="text-4xl font-bold mb-2 text-green-600" style="color: var(--secondary-green);">0</h2>
+                        <p class="text-sm">الشهادات المكتسبة</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="courses" class="tab-content hidden fade-in">
+            <h2 class="text-3xl font-bold text-center mb-10" style="color: var(--primary-green);">برامج الجودة والاعتماد الأكاديمي</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <script>
+                    const coursesData = [
+                        { id: 1, title: 'المفاهيم الأساسية لنظم الجودة', desc: 'التعرف على المبادئ والمفاهيم الأساسية لضمان الجودة والاعتماد الأكاديمي وثقافة الجودة.' },
+                        { id: 2, title: 'التقويم الذاتي', desc: 'إكساب المتدربين مهارات وآليات تنفيذ التقويم الذاتي للمؤسسات وتحديد مجالات التحسين.' },
+                        { id: 3, title: 'الدراسة الذاتية', desc: 'كيفية إعداد وصياغة وثيقة الدراسة الذاتية وفقاً لمعايير الهيئة القومية لضمان جودة التعليم.' },
+                        { id: 4, title: 'معايير الاعتماد المؤسسي والبرامجي', desc: 'دراسة تفصيلية لمعايير الاعتماد وكيفية استيفاء مؤشراتها وشواهدها وأدلتها بدقة.' },
+                        { id: 5, title: 'توصيف البرامج والمقررات', desc: 'التدريب العملي على الصياغة الصحيحة لتوصيف البرامج والمقررات الدراسية وفق اللوائح.' },
+                        { id: 6, title: 'نواتج التعلم', desc: 'كيفية صياغة نواتج التعلم المستهدفة (ILOs) للمقررات وطرق قياسها وربطها بأساليب التدريس.' },
+                        { id: 7, title: 'مؤشرات الأداء', desc: 'تحديد وصياغة مؤشرات الأداء الرئيسية (KPIs) وطرق قياس مدى تحقق الأهداف التشغيلية.' },
+                        { id: 8, title: 'التخطيط الاستراتيجي', desc: 'مهارات إعداد الخطة الاستراتيجية متضمنة الرؤية والرسالة والتحليل البيئي (SWOT).' },
+                        { id: 9, title: 'إعداد الاستبيانات وتحليل نتائجها', desc: 'تصميم الاستبيانات وتحليل بياناتها إحصائياً لدعم اتخاذ القرار المؤسسي.' },
+                        { id: 10, title: 'تقارير البرامج وخطط التحسين', desc: 'إعداد التقرير السنوي وبناء خطط التحسين والمتابعة المستمرة لغلق دائرة الجودة.' }
+                    ];
+
+                    coursesData.forEach(course => {
+                        document.write(`
+                            <div class="interactive-card bg-white rounded-xl shadow-md p-6 flex flex-col justify-between border-t-4 h-full">
+                                <div>
+                                    <h3 class="text-lg font-bold mb-3">${course.title}</h3>
+                                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">${course.desc}</p>
+                                </div>
+                                <button class="course-action-btn w-full py-3 rounded-lg font-bold text-sm tracking-wide" id="btn-course-${course.id}" onclick="registerCourse(${course.id}, '${course.title}')">تسجيل الآن</button>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
+        </section>
+
+        <section id="certificates" class="tab-content hidden fade-in">
+            <h2 class="text-3xl font-bold text-center mb-4" style="color: var(--primary-green);">الشهادات والاعتمادات الرقمية</h2>
+            <p class="text-center text-gray-500 mb-10">تظهر الشهادات هنا فور تسجيلك بالدورات، مدمجة ببياناتك الأكاديمية الجاهزة للطباعة.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <script>
+                    const certTitlesList = [
+                        "شهادة المفاهيم الأساسية للجودة", "شهادة مهارات التقويم الذاتي", "شهادة إعداد الدراسة الذاتية",
+                        "شهادة معايير الاعتماد", "شهادة توصيف البرامج والمقررات", "شهادة صياغة نواتج التعلم",
+                        "شهادة مؤشرات الأداء KPIs", "شهادة التخطيط الاستراتيجي", "شهادة تحليل الاستبيانات", "شهادة التقارير وخطط التحسين"
+                    ];
+                    
+                    for(let i=1; i<=10; i++) {
+                        document.write(`
+                            <div class="certificate-box bg-white border-2 border-dashed border-gray-300 rounded-xl p-6 text-center relative flex flex-col justify-between" id="cert-box-${i}">
+                                <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600" id="cert-badge-${i}">مغلقة</span>
+                                <h4 class="mt-6 font-bold text-lg" style="color: var(--primary-green);">${certTitlesList[i-1]}</h4>
+                                <p class="text-sm text-gray-500 my-4 flex-grow">تمنح للمتدرب لتوثيق الجدارة والكفاءة في هذا المجال الأكاديمي.</p>
+                                <button class="w-full py-2 rounded-lg text-sm font-semibold bg-gray-200 text-gray-500 cursor-not-allowed transition-colors" id="cert-btn-${i}" disabled onclick="viewCertificate(${i}, '${certTitlesList[i-1]}')">معاينة أو طباعة الشهادة</button>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </section>
+
+        <section id="forum" class="tab-content hidden fade-in">
+             <div class="mb-8 flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 pb-4 gap-4">
+                <h2 class="text-2xl font-bold" style="color: var(--primary-green);">النقاشات الأكاديمية الفعالة</h2>
+                <button class="add-topic-btn text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 transition-transform hover:-translate-y-0.5" onclick="openAddTopicModal()">
+                    <span class="text-xl leading-none">+</span> أضف موضوعاً جديداً
+                </button>
+            </div>
+            
+            <div id="forumThreadsContainer" class="space-y-6">
+                <!-- Thread 1 -->
+                <div class="forum-thread-modern bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-r-4 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow">
+                    <div class="thread-avatar w-16 h-16 rounded-full text-white flex items-center justify-center text-2xl font-bold shrink-0 mx-auto sm:mx-0">أ</div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--primary-green);">أفضل ممارسات نشر ثقافة الجودة بين الطلاب</h3>
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+                            <span>بواسطة: د. أحمد كمال</span>
+                            <span>تاريخ: 15 يوليو 2026</span>
+                        </div>
+                        <p class="text-gray-700 mb-4 leading-relaxed">كيف يمكننا تحفيز الطلاب على المشاركة الفعالة في تعبئة استبيانات تقويم المقررات بصدق وموضوعية؟ شاركونا تجاربكم الناجحة في هذا السياق.</p>
+                        <div class="flex gap-4 border-t border-gray-100 pt-3">
+                            <button class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors flex items-center gap-1">💬 5 ردود</button>
+                            <button class="text-sm font-semibold text-gray-500 hover:text-yellow-500 transition-colors flex items-center gap-1">👍 12 إعجاب</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thread 2 -->
+                <div class="forum-thread-modern bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-r-4 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 rounded-full text-white flex items-center justify-center text-2xl font-bold shrink-0 mx-auto sm:mx-0" style="background: linear-gradient(135deg, var(--accent-gold), var(--dark-gold));">م</div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--primary-green);">تحديات صياغة نواتج التعلم (ILOs) للمقررات العملية</h3>
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+                            <span>بواسطة: م. منى سعيد</span>
+                            <span>تاريخ: 13 يوليو 2026</span>
+                        </div>
+                        <p class="text-gray-700 mb-4 leading-relaxed">نرجو تبادل الخبرات حول كيفية صياغة نواتج تعلم تقيس المهارات العملية والأدائية بشكل دقيق ومباشر داخل المعامل والمدرجات التطبيقية.</p>
+                        <div class="flex gap-4 border-t border-gray-100 pt-3">
+                            <button class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors flex items-center gap-1">💬 12 رد</button>
+                            <button class="text-sm font-semibold text-gray-500 hover:text-yellow-500 transition-colors flex items-center gap-1">👍 28 إعجاب</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="know-more" class="tab-content hidden fade-in">
+             <h2 class="text-3xl font-bold text-center mb-10" style="color: var(--primary-green);">مضامين ومعلومات هامة عن إدارة الجودة</h2>
+             
+             <div class="relative max-w-4xl mx-auto h-[400px] rounded-2xl overflow-hidden shadow-2xl bg-gray-900 group">
+                <!-- Slides Container -->
+                <div id="knowSlidesContainer" class="w-full h-full relative">
+                    <!-- Slides will be injected here by JS -->
+                </div>
+
+                <!-- Navigation Controls -->
+                <button onclick="changeKnowSlide(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 text-white border-2 border-transparent hover:bg-yellow-500/80 hover:border-white transition-all backdrop-blur-sm z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">&#10095;</button>
+                <button onclick="changeKnowSlide(1)" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 text-white border-2 border-transparent hover:bg-yellow-500/80 hover:border-white transition-all backdrop-blur-sm z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">&#10094;</button>
+
+                <!-- Dots -->
+                <div id="knowDotsContainer" class="absolute bottom-6 w-full flex justify-center gap-3 z-10">
+                    <!-- Dots injected by JS -->
+                </div>
+             </div>
+        </section>
+        
+        <section id="about" class="tab-content hidden fade-in max-w-5xl mx-auto">
+             <!-- Header Title & Badge -->
+             <div class="text-center mb-12">
+                 <div class="inline-block px-4 py-1.5 rounded-full text-xs font-bold mb-3 shadow-sm bg-amber-100 text-amber-800">
+                     تعرف على رسالتنا المؤسسية
+                 </div>
+                 <h2 class="text-3xl sm:text-4xl font-extrabold mb-4" style="color: var(--primary-green);">من نحن</h2>
+                 <p class="text-gray-600 max-w-2xl mx-auto text-base">
+                     منصة أكاديمية رائدة مخصصة لنشر ثقافة الجودة الشاملة والاعتماد المؤسسي وفقاً لأعلى المعايير الوطنية والدولية.
+                 </p>
+             </div>
+
+             <!-- Grid Showcase Cards -->
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                 <!-- Vision Card -->
+                 <div class="bg-white rounded-2xl p-8 shadow-xl border border-green-100 relative overflow-hidden group hover:border-amber-400 transition-all duration-300">
+                     <div class="absolute top-0 right-0 w-3 h-full bg-amber-400 group-hover:bg-green-700 transition-colors"></div>
+                     <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl font-bold mb-6 shadow-sm">
+                         👁️
+                     </div>
+                     <h3 class="text-2xl font-bold mb-3" style="color: var(--dark-gold);">رؤيتنا</h3>
+                     <p class="text-gray-700 leading-relaxed text-base">
+                         الريادة والتميز في تمكين المؤسسات التعليمية والأكاديمية من تطبيق أعلى معايير الجودة الشاملة والاعتماد الأكاديمي للوصول إلى مستويات التنافسية العالمية.
+                     </p>
+                 </div>
+
+                 <!-- Mission Card -->
+                 <div class="bg-white rounded-2xl p-8 shadow-xl border border-green-100 relative overflow-hidden group hover:border-green-600 transition-all duration-300">
+                     <div class="absolute top-0 right-0 w-3 h-full bg-green-700 group-hover:bg-amber-400 transition-colors"></div>
+                     <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-700 flex items-center justify-center text-2xl font-bold mb-6 shadow-sm">
+                         🎯
+                     </div>
+                     <h3 class="text-2xl font-bold mb-3" style="color: var(--primary-green);">رسالتنا</h3>
+                     <p class="text-gray-700 leading-relaxed text-base">
+                         توفير برامج تدريبية متطورة، ونظم تقييم دقيقة، وبيئة تفاعلية متكاملة للارتقاء بمهارات الكوادر الأكاديمية وبناء مجتمع معرفي قائم على التحسين المستمر والتميز المؤسسي.
+                     </p>
+                 </div>
+             </div>
+
+             <!-- Core Values Banner -->
+             <div class="bg-gradient-to-br from-green-900 to-green-950 text-white rounded-3xl p-8 sm:p-10 shadow-2xl border border-green-800 relative overflow-hidden">
+                 <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fbbf24 1px, transparent 1px); background-size: 20px 20px;"></div>
+                 <div class="relative z-10 text-center mb-8">
+                     <h3 class="text-2xl sm:text-3xl font-bold mb-2" style="color: var(--accent-gold);">قيمنا الجوهرية</h3>
+                     <p class="text-gray-200 text-sm">المبادئ التي توجه كافة أعمالنا وأنشطتنا الأكاديمية</p>
+                 </div>
+                 <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                     <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                         <div class="text-xl font-bold mb-1" style="color: var(--accent-gold);">المصداقية</div>
+                         <div class="text-xs text-gray-300">في التقييم والاعتماد</div>
+                     </div>
+                     <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                         <div class="text-xl font-bold mb-1" style="color: var(--accent-gold);">الشفافية</div>
+                         <div class="text-xs text-gray-300">في إعلان النتائج والمعايير</div>
+                     </div>
+                     <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                         <div class="text-xl font-bold mb-1" style="color: var(--accent-gold);">الابتكار</div>
+                         <div class="text-xs text-gray-300">في الحلول التدريبية</div>
+                     </div>
+                     <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                         <div class="text-xl font-bold mb-1" style="color: var(--accent-gold);">التحسين المستمر</div>
+                         <div class="text-xs text-gray-300">لغلق دائرة الجودة</div>
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+        <section id="contact" class="tab-content hidden fade-in max-w-2xl mx-auto">
+             <h2 class="text-3xl font-bold text-center mb-8" style="color: var(--primary-green);">اتصل بنا</h2>
+             <form class="bg-white p-8 rounded-xl shadow-md border border-gray-100" onsubmit="event.preventDefault(); showNotification('تم إرسال رسالتك بنجاح!');">
+                 <div class="mb-4">
+                     <label class="block text-gray-700 text-sm font-bold mb-2">الاسم بالكامل</label>
+                     <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                 </div>
+                 <div class="mb-4">
+                     <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
+                     <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                 </div>
+                 <div class="mb-6">
+                     <label class="block text-gray-700 text-sm font-bold mb-2">الرسالة</label>
+                     <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 h-32" required></textarea>
+                 </div>
+                 <button type="submit" class="w-full action-btn text-white py-3 rounded-lg font-bold">إرسال الرسالة</button>
+             </form>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#04331b] text-white pt-12 pb-6 border-t-4 border-amber-400 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+                <!-- Column 1: Newsletter -->
+                <div class="text-right">
+                    <h3 class="text-amber-400 font-bold text-lg mb-4">القائمة البريدية</h3>
+                    <p class="text-gray-300 text-sm mb-4 leading-relaxed">اشترك ليصلك أحدث الأخبار ومواعيد الدورات التدريبية.</p>
+                    <form onsubmit="event.preventDefault(); showNotification('تم الاشتراك في القائمة البريدية بنجاح!');" class="space-y-3">
+                        <input type="email" placeholder="البريد الإلكتروني" required class="w-full px-4 py-2.5 rounded-lg bg-[#064e3b] border border-green-700 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-amber-400">
+                        <button type="submit" class="w-full py-2.5 rounded-lg font-bold text-sm bg-amber-400 text-gray-900 hover:bg-amber-300 transition-colors shadow-md">اشترك الآن</button>
+                    </form>
+                </div>
+
+                <!-- Column 2: Contact Us -->
+                <div class="text-right">
+                    <h3 class="text-amber-400 font-bold text-lg mb-4">تواصل معنا</h3>
+                    <ul class="space-y-3 text-sm text-gray-300">
+                        <li class="flex items-start gap-2 justify-start">
+                            <span class="text-amber-400 shrink-0">📍</span>
+                            <span>١٢ شارع الجودة، مدينة نصر، القاهرة، جمهورية مصر العربية</span>
+                        </li>
+                        <li class="flex items-center gap-2 justify-start" dir="ltr">
+                            <span class="text-amber-400 shrink-0">📞</span>
+                            <span class="text-right">+20 2 2345 6789</span>
+                        </li>
+                        <li class="flex items-center gap-2 justify-start" dir="ltr">
+                            <span class="text-amber-400 shrink-0">✉️</span>
+                            <span class="text-right">info@naqaae.eg</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Important Links -->
+                <div class="text-right">
+                    <h3 class="text-amber-400 font-bold text-lg mb-4">روابط هامة</h3>
+                    <ul class="space-y-2.5 text-sm text-gray-300">
+                        <li><a href="#home" onclick="switchTab('home', document.querySelectorAll('.tab-button')[0])" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">&lsaquo;</span> القوانين واللوائح</a></li>
+                        <li><a href="#courses" onclick="switchTab('courses', document.querySelectorAll('.tab-button')[1])" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">&lsaquo;</span> أدلة الاعتماد</a></li>
+                        <li><a href="#know-more" onclick="switchTab('know-more', document.querySelectorAll('.tab-button')[4])" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">&lsaquo;</span> المكتبة الرقمية</a></li>
+                        <li><a href="#forum" onclick="switchTab('forum', document.querySelectorAll('.tab-button')[3])" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">&lsaquo;</span> الأسئلة الشائعة</a></li>
+                        <li><a href="#contact" onclick="switchTab('contact', document.querySelectorAll('.tab-button')[6])" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">&lsaquo;</span> اتصل بنا</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Brand & Socials -->
+                <div class="text-right flex flex-col items-start">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-400 text-gray-900 flex items-center justify-center font-bold text-lg shadow-md">✓</div>
+                        <div>
+                            <div class="font-bold text-base text-white">الهيئة القومية</div>
+                            <div class="text-[11px] text-amber-400">لضمان جودة التعليم والاعتماد</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                        المظلة الرسمية لضمان جودة التعليم في مصر والارتقاء به لمستوى المعايير الدولية.
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#064e3b] text-white hover:bg-amber-400 hover:text-gray-900 transition-colors flex items-center justify-center text-sm shadow-sm" aria-label="LinkedIn">in</a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#064e3b] text-white hover:bg-amber-400 hover:text-gray-900 transition-colors flex items-center justify-center text-sm shadow-sm" aria-label="YouTube">▶</a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#064e3b] text-white hover:bg-amber-400 hover:text-gray-900 transition-colors flex items-center justify-center text-sm shadow-sm" aria-label="Twitter">𝕏</a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#064e3b] text-white hover:bg-amber-400 hover:text-gray-900 transition-colors flex items-center justify-center text-sm shadow-sm" aria-label="Facebook">f</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Sub-footer -->
+            <div class="border-t border-green-800/80 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-4">
+                <div>جميع الحقوق محفوظة © ٢٠٢٤ الهيئة القومية لضمان جودة التعليم والاعتماد.</div>
+                <div class="flex gap-6">
+                    <a href="#" onclick="showNotification('سياسة الخصوصية للمنصة')" class="hover:text-amber-400 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" onclick="showNotification('شروط الاستخدام والأحكام')" class="hover:text-amber-400 transition-colors">شروط الاستخدام</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="certModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[1000] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-3xl w-full relative shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onclick="closeModal('certModal')" class="absolute top-4 left-4 text-3xl text-gray-400 hover:text-gray-800 transition-colors">&times;</button>
+            
+            <div id="certificateContent" class="border-[12px] border-double p-8 sm:p-12 text-center bg-[#fffdf9] relative mt-4" style="border-color: var(--primary-green);">
+                <div class="absolute inset-2 border-2 border-yellow-500 pointer-events-none"></div>
+                
+                <div class="mb-8">
+                    <img src="https://placehold.co/100x100/15803d/ffffff?text=Logo" alt="Logo" class="mx-auto mb-4 rounded-full">
+                    <h2 class="text-3xl font-bold mb-2" style="color: var(--primary-green);">شهادة اجتياز دورة تدريبية</h2>
+                    <p class="text-sm text-gray-500 tracking-widest">جامعة الأزهر - مركز ضمان الجودة</p>
+                </div>
+
+                <div class="text-lg leading-loose mb-8">
+                    تشهد المنصة بأن <span id="modalCertName" class="font-bold text-xl px-1 text-green-700">المتدرب/ة</span> قد اجتاز بنجاح متطلبات الدورة التدريبية بعنوان:
+                    <div id="modalCertTitle" class="text-2xl font-bold my-4 border-b border-dashed inline-block px-4 pb-1" style="color: var(--dark-gold); border-color: var(--dark-gold);">[اسم الدورة]</div>
+                    <br>وذلك بواقع إتمام كافة الساعات التدريبية والتطبيقات العملية المقررة.
+                </div>
+
+                <div class="flex justify-between items-end mt-12 px-8 text-sm font-bold text-gray-700">
+                    <div class="text-center border-t border-gray-400 pt-2 w-32">مدير المركز</div>
+                    <div class="text-center w-24 h-24 border-4 border-red-500/30 rounded-full flex items-center justify-center text-red-500 font-bold rotate-12 opacity-80">ختم الاعتماد</div>
+                    <div class="text-center border-t border-gray-400 pt-2 w-32">رئيس الجامعة</div>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-center print:hidden">
+                <button onclick="window.print()" class="action-btn px-8 py-3 rounded-lg font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    طباعة الشهادة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="courseRegModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[1000] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-lg w-full relative shadow-2xl">
+            <button onclick="closeModal('courseRegModal')" class="absolute top-4 left-4 text-3xl text-gray-400 hover:text-gray-800 transition-colors">&times;</button>
+            
+            <h2 class="text-2xl font-bold mb-2" style="color: var(--primary-green);">استمارة تسجيل دورة</h2>
+            <p id="regCourseTitle" class="text-gray-600 mb-6 font-semibold"></p>
+            
+            <form id="courseRegForm" onsubmit="submitCourseRegistration(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">الاسم الرباعي</label>
+                    <input type="text" id="regName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required placeholder="ادخل اسمك كما تريده في الشهادة">
+                </div>
+                <div class="flex gap-4 mb-4">
+                    <div class="w-1/3">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">السن</label>
+                        <input type="number" id="regAge" min="20" max="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                    </div>
+                    <div class="w-2/3">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">الكلية</label>
+                        <input type="text" id="regFaculty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">القسم</label>
+                    <input type="text" id="regDept" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">درجة الترقية</label>
+                    <select id="regDegree" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                        <option value="" disabled selected>اختر الدرجة...</option>
+                        <option value="مدرس">مدرس</option>
+                        <option value="أستاذ مساعد">أستاذ مساعد</option>
+                        <option value="أستاذ">أستاذ</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('courseRegModal')" class="px-6 py-2 rounded-lg font-bold text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors">إلغاء</button>
+                    <button type="submit" class="action-btn text-white px-6 py-2 rounded-lg font-bold transition-transform hover:-translate-y-0.5">تأكيد التسجيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addTopicModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[1000] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full relative shadow-2xl">
+            <button onclick="closeModal('addTopicModal')" class="absolute top-4 left-4 text-3xl text-gray-400 hover:text-gray-800 transition-colors">&times;</button>
+            
+            <h2 class="text-2xl font-bold mb-6" style="color: var(--primary-green);">إضافة موضوع نقاش جديد</h2>
+            
+            <form id="newTopicForm" onsubmit="submitNewTopic(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">عنوان الموضوع</label>
+                    <input type="text" id="topicTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required placeholder="اكتب عنواناً واضحاً ومختصراً...">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">تفاصيل الموضوع</label>
+                    <textarea id="topicContent" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 h-32" required placeholder="اشرح فكرتك أو استفسارك بالتفصيل..."></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('addTopicModal')" class="px-6 py-2 rounded-lg font-bold text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors">إلغاء</button>
+                    <button type="submit" class="add-topic-btn text-white px-6 py-2 rounded-lg font-bold transition-transform hover:-translate-y-0.5">نشر الموضوع</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let registeredCourses = [];
+        let pendingCourseId = null;
+        let pendingCourseTitle = '';
+        let traineeData = {};
+
+        // Helper notification function
+        function showNotification(message) {
+            const msg = document.createElement('div');
+            msg.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 transform transition-all translate-y-0 opacity-100 flex items-center gap-2';
+            msg.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <span class="font-bold">${message}</span>`;
+            document.body.appendChild(msg);
+            setTimeout(() => {
+                msg.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => msg.remove(), 300);
+            }, 3000);
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('block');
+                tab.classList.add('hidden');
+            });
+            const selectedTab = document.getElementById(tabId);
+            selectedTab.classList.remove('hidden');
+            selectedTab.classList.add('block');
+            
+            selectedTab.classList.remove('fade-in');
+            void selectedTab.offsetWidth;
+            selectedTab.classList.add('fade-in');
+
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+        }
+
+        // Course Registration Logic
+        function registerCourse(courseId, courseTitle) {
+            if(registeredCourses.includes(courseId)) return;
+
+            pendingCourseId = courseId;
+            pendingCourseTitle = courseTitle;
+            document.getElementById('regCourseTitle').textContent = `الدورة: ${courseTitle}`;
+            
+            if(traineeData.name) {
+                document.getElementById('regName').value = traineeData.name;
+                document.getElementById('regAge').value = traineeData.age;
+                document.getElementById('regFaculty').value = traineeData.faculty;
+                document.getElementById('regDept').value = traineeData.dept;
+                document.getElementById('regDegree').value = traineeData.degree;
+            }
+            
+            document.getElementById('courseRegModal').classList.remove('hidden');
+            document.getElementById('courseRegModal').classList.add('flex');
+        }
+
+        function submitCourseRegistration(event) {
+            event.preventDefault();
+            
+            traineeData = {
+                name: document.getElementById('regName').value,
+                age: document.getElementById('regAge').value,
+                faculty: document.getElementById('regFaculty').value,
+                dept: document.getElementById('regDept').value,
+                degree: document.getElementById('regDegree').value
+            };
+
+            const courseId = pendingCourseId;
+            const courseTitle = pendingCourseTitle;
+            
+            closeModal('courseRegModal');
+
+            const msg = document.createElement('div');
+            msg.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-xl z-50 transform transition-all translate-y-0 opacity-100 flex flex-col gap-3 max-w-sm';
+            msg.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-bold text-lg">تم التسجيل بنجاح!</span>
+                </div>
+                <p class="text-sm opacity-95">تم إضافة "${courseTitle}" لقائمتك، وتم تفعيل الشهادة الخاصة بها.</p>
+                <button onclick="switchTab('certificates', document.querySelectorAll('.tab-button')[2]); this.closest('.fixed').remove();" class="mt-1 bg-white text-green-700 px-4 py-2 rounded font-bold text-sm hover:bg-green-50 transition-colors w-full shadow-sm">الذهاب للشهادات الآن</button>
+            `;
+            document.body.appendChild(msg);
+            
+            setTimeout(() => {
+                if(document.body.contains(msg)) {
+                    msg.classList.add('translate-y-10', 'opacity-0');
+                    setTimeout(() => msg.remove(), 300);
+                }
+            }, 6000);
+
+            registeredCourses.push(courseId);
+
+            const btn = document.getElementById(`btn-course-${courseId}`);
+            btn.textContent = 'تم التسجيل ✓';
+            btn.classList.add('registered');
+            btn.onclick = null;
+
+            document.getElementById('myRegistrationCount').textContent = registeredCourses.length;
+            document.getElementById('myCertificatesCount').textContent = registeredCourses.length;
+
+            const certBox = document.getElementById(`cert-box-${courseId}`);
+            const certBadge = document.getElementById(`cert-badge-${courseId}`);
+            const certBtn = document.getElementById(`cert-btn-${courseId}`);
+
+            if(certBox && certBadge && certBtn) {
+                certBox.classList.add('unlocked');
+                certBox.style.transition = "all 0.5s ease";
+                certBox.classList.add('ring-4', 'ring-green-400', 'ring-opacity-50', 'transform', 'scale-105');
+                setTimeout(() => certBox.classList.remove('ring-4', 'ring-green-400', 'ring-opacity-50', 'transform', 'scale-105'), 1500);
+                
+                certBadge.textContent = 'متاحة للطباعة';
+                certBadge.className = 'absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold badge-unlocked border border-yellow-400';
+                
+                certBtn.disabled = false;
+                certBtn.textContent = 'معاينة وطباعة الشهادة';
+                certBtn.className = 'w-full py-2.5 rounded-lg text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors shadow-md transform hover:scale-[1.02] active:scale-95';
+            }
+            
+            pendingCourseId = null;
+            pendingCourseTitle = '';
+        }
+
+        function viewCertificate(id, title) {
+            document.getElementById('modalCertTitle').textContent = title;
+            document.getElementById('modalCertName').textContent = traineeData.name ? `${traineeData.degree}/ ${traineeData.name}` : 'المتدرب/ة';
+            document.getElementById('certModal').classList.remove('hidden');
+            document.getElementById('certModal').classList.add('flex');
+        }
+
+        function openAddTopicModal() {
+            document.getElementById('addTopicModal').classList.remove('hidden');
+            document.getElementById('addTopicModal').classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        function submitNewTopic(event) {
+            event.preventDefault();
+            const titleInput = document.getElementById('topicTitle');
+            const contentInput = document.getElementById('topicContent');
+            
+            const title = titleInput.value;
+            const content = contentInput.value;
+            const currentDate = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const newThreadHtml = `
+                <div class="forum-thread-modern bg-yellow-50 rounded-xl p-6 shadow-sm border border-yellow-100 border-r-4 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow fade-in" style="border-right-color: var(--primary-green);">
+                    <div class="w-16 h-16 rounded-full text-white flex items-center justify-center text-2xl font-bold shrink-0 mx-auto sm:mx-0" style="background-color: var(--primary-green);">م</div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--primary-green);">${title}</h3>
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+                            <span>بواسطة: متدرب (أنت)</span>
+                            <span>تاريخ: ${currentDate}</span>
+                        </div>
+                        <p class="text-gray-700 mb-4 leading-relaxed">${content}</p>
+                        <div class="flex gap-4 border-t border-gray-200 pt-3">
+                            <button class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors flex items-center gap-1">💬 0 ردود</button>
+                            <button class="text-sm font-semibold text-gray-500 hover:text-yellow-500 transition-colors flex items-center gap-1">👍 0 إعجاب</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('forumThreadsContainer').insertAdjacentHTML('afterbegin', newThreadHtml);
+            titleInput.value = '';
+            contentInput.value = '';
+            closeModal('addTopicModal');
+            showNotification('تم نشر الموضوع بنجاح!');
+        }
+
+        const knowSlidesData = [
+            { title: 'مفهوم الجودة', content: 'الجودة ليست وجهة نصل إليها، بل هي رحلة مستمرة من التحسين والتطوير لتلبية وتجاوز توقعات المستفيدين.' },
+            { title: 'أهمية الاعتماد الأكاديمي', content: 'الاعتماد يضمن للمجتمع أن المؤسسة التعليمية تقدم خدمة ذات مستوى عالٍ وتلتزم بالمعايير الوطنية والدولية.' },
+            { title: 'ثقافة الجودة', content: 'نشر الوعي بأهمية الجودة وجعلها ممارسة يومية لدى جميع العاملين في المؤسسة التعليمية.' },
+            { title: 'التحسين المستمر', content: 'عملية تقييم الأداء بشكل دوري وتحديد فرص التحسين وتطبيق الحلول المبتكرة لرفع الكفاءة.' },
+            { title: 'مشاركة المعنيين', content: 'إشراك الطلاب، وأعضاء هيئة التدريس، والمجتمع المحلي في عمليات التقويم والتطوير لضمان شمولية الرؤية.' },
+            { title: 'المساءلة والشفافية', content: 'الالتزام بإعلان النتائج ومستوى الأداء بشفافية تامة لتعزيز الثقة وبناء جسور التواصل.' },
+            { title: 'التخطيط الاستراتيجي', content: 'رسم خارطة طريق واضحة للمستقبل بناءً على تحليل دقيق للواقع وتحديد أهداف طموحة وقابلة للقياس.' },
+            { title: 'التميز المؤسسي', content: 'السعي الدؤوب لتحقيق أفضل الممارسات في كافة جوانب العمل الأكاديمي والإداري للوصول للريادة.' }
+        ];
+
+        let currentKnowSlide = 0;
+
+        function initKnowSlider() {
+            const container = document.getElementById('knowSlidesContainer');
+            const dotsContainer = document.getElementById('knowDotsContainer');
+            if(!container) return;
+            
+            container.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            knowSlidesData.forEach((slide, index) => {
+                const slideEl = document.createElement('div');
+                slideEl.className = `know-slide absolute inset-0 flex items-center justify-center opacity-0 invisible transition-all duration-700 transform scale-105 ${index === 0 ? 'active opacity-100 visible scale-100 z-20' : 'z-10'}`;
+                slideEl.id = `k-slide-${index}`;
+                
+                slideEl.innerHTML = `
+                    <div class="absolute inset-[-50%] w-[200%] h-[200%] opacity-20 pointer-events-none" style="background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 60%); animation: spin 30s linear infinite;"></div>
+                    <div class="relative z-30 text-center px-10 sm:px-20 transition-all duration-700 transform ${index === 0 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'} slide-content">
+                        <h3 class="text-3xl sm:text-4xl font-bold mb-6 drop-shadow-md">${slide.title}</h3>
+                        <p class="text-lg sm:text-xl text-white leading-relaxed drop-shadow">${slide.content}</p>
+                    </div>
+                `;
+                container.appendChild(slideEl);
+
+                const dot = document.createElement('div');
+                dot.className = `know-dot w-3 h-3 rounded-full cursor-pointer transition-all duration-300 ${index === 0 ? 'active' : 'bg-white/30'}`;
+                dot.onclick = () => goToKnowSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+            
+            if(!document.getElementById('spinStyle')) {
+                const style = document.createElement('style');
+                style.id = 'spinStyle';
+                style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+                document.head.appendChild(style);
+            }
+        }
+
+        function updateKnowSlides() {
+            const slides = document.querySelectorAll('.know-slide');
+            const dots = document.querySelectorAll('.know-dot');
+            const contents = document.querySelectorAll('.slide-content');
+            if(slides.length === 0) return;
+
+            slides.forEach((slide, index) => {
+                if (index === currentKnowSlide) {
+                    slide.classList.remove('opacity-0', 'invisible', 'scale-105', 'z-10');
+                    slide.classList.add('opacity-100', 'visible', 'scale-100', 'z-20');
+                    setTimeout(() => {
+                        if(contents[index]) {
+                            contents[index].classList.remove('translate-y-10', 'opacity-0');
+                            contents[index].classList.add('translate-y-0', 'opacity-100');
+                        }
+                    }, 100);
+                    if(dots[index]) dots[index].classList.add('active');
+                } else {
+                    slide.classList.remove('opacity-100', 'visible', 'scale-100', 'z-20');
+                    slide.classList.add('opacity-0', 'invisible', 'scale-105', 'z-10');
+                    if(contents[index]) {
+                        contents[index].classList.remove('translate-y-0', 'opacity-100');
+                        contents[index].classList.add('translate-y-10', 'opacity-0');
+                    }
+                    if(dots[index]) dots[index].classList.remove('active');
+                }
+            });
+        }
+
+        function changeKnowSlide(direction) {
+            currentKnowSlide = (currentKnowSlide + direction + knowSlidesData.length) % knowSlidesData.length;
+            updateKnowSlides();
+        }
+
+        function goToKnowSlide(index) {
+            currentKnowSlide = index;
+            updateKnowSlides();
+        }
+
+        window.onload = () => {
+            initKnowSlider();
+            setInterval(() => changeKnowSlide(1), 5000);
+        };
+    </script>
+</body>
+</html>

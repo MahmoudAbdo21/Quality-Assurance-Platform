@@ -1,0 +1,62 @@
+import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
+
+export default async function ForumPage() {
+  const topics = await prisma.forumTopic.findMany({
+    where: { isVisible: true },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count: {
+        select: { comments: true, likes: true }
+      }
+    }
+  });
+
+  return (
+    <div className="container mx-auto px-4 py-12 fade-in">
+      <div className="flex justify-between items-center mb-8 border-b-2 border-[var(--accent-gold)] pb-4">
+        <div>
+          <h2 className="text-3xl font-bold text-[var(--primary-green)] mb-2">منتدى النقاش والتطوير</h2>
+          <p className="text-gray-600">مساحة تفاعلية لتبادل الرؤى والخبرات حول قضايا الجودة والاعتماد.</p>
+        </div>
+        <button className="add-topic-btn text-white px-6 py-3 rounded-lg font-bold transition">
+          + موضوع جديد
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {topics.map(topic => (
+          <div key={topic.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 forum-thread-modern border-r-4 transition hover:shadow-md">
+            <div className="flex items-start">
+              <div className="hidden md:flex thread-avatar w-12 h-12 rounded-full text-white items-center justify-center font-bold text-xl ml-4 shrink-0 shadow-inner">
+                {topic.authorName.charAt(0)}
+              </div>
+              <div className="flex-grow">
+                <Link href={`/forum/${topic.id}`}>
+                  <h3 className="text-xl font-bold text-[var(--primary-green)] hover:text-[var(--secondary-green)] transition mb-2">
+                    {topic.title}
+                  </h3>
+                </Link>
+                <div className="text-sm text-gray-500 mb-3 flex items-center space-x-4 space-x-reverse">
+                  <span className="flex items-center"><span className="mr-1">👤</span> {topic.authorName}</span>
+                  <span className="flex items-center"><span className="mr-1">📅</span> {topic.createdAt.toLocaleDateString('ar-EG')}</span>
+                </div>
+                <p className="text-gray-700 leading-relaxed line-clamp-2">
+                  {topic.content}
+                </p>
+                <div className="mt-4 flex space-x-4 space-x-reverse border-t border-gray-50 pt-3">
+                  <button className="text-sm text-gray-500 hover:text-[var(--primary-green)] transition flex items-center">
+                    <span className="mr-1">💬</span> {topic._count.comments} تعليقات
+                  </button>
+                  <button className="text-sm text-gray-500 hover:text-red-500 transition flex items-center">
+                    <span className="mr-1">❤️</span> {topic._count.likes} إعجاب
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
